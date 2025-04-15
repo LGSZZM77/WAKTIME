@@ -1,0 +1,28 @@
+@import url("./reset.css");
+@font-face {
+  font-family: "CookieRun Regular";
+  src: url("./fonts/CookieRunFont_OTF/CookieRun_Regular.otf");
+}
+@font-face {
+  font-family: "CookieRun Bold";
+  src: url("./fonts/CookieRunFont_OTF/CookieRun_Bold.otf");
+}
+:root {
+  --header-text: #6b7280;
+  --backgruond: #f9fafb;
+  --carousel_nav: rgba(0, 188, 161, 0.3);
+}
+.dark {
+  --header-text: #bbbbbb;
+  --backgruond: #232323;
+  --carousel_nav: #424242;
+}
+body {
+  font-family: "CookieRun Regular", sans-serif;
+}
+.fb {
+  font-family: "CookieRun Bold";
+}
+.container {
+  padding: 0 1rem;
+}
