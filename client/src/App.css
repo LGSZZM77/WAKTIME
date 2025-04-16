@@ -10,11 +10,13 @@
 :root {
   --header-text: #6b7280;
   --backgruond: #f9fafb;
+  --background-deep: #f3f4f6;
   --carousel_nav: rgba(0, 188, 161, 0.3);
 }
 .dark {
   --header-text: #bbbbbb;
   --backgruond: #232323;
+  --background-deep: #191919;
   --carousel_nav: #424242;
 }
 body {

@@ -1,6 +1,7 @@
 import "./App.css";
 import Header from "./components/views/Header/Header";
 import Carousel from "./components/views/Carousel/Carousel";
+import Activity from "./components/views/Activity/Activity";
 
 function App() {
   return (
@@ -8,6 +9,7 @@ function App() {
       <>
         <Header />
         <Carousel />
+        <Activity />
       </>
     </div>
   );

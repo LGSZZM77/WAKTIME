@@ -19,18 +19,25 @@
   display: flex;
   gap: 1rem;
   position: relative;
-  transition: transform 0.3s ease;
+}
+.banner_wrap.animated {
+  transition: 0.5s ease-out;
 }
 .banner {
   background-color: #bbb;
   height: 16rem;
   aspect-ratio: 9 / 4;
-  width: 100%;
   border-radius: 16px;
   position: relative;
   background-position: center;
   background-size: cover;
 }
+@media screen and (max-width: 768px) {
+  .banner {
+    aspect-ratio: 4 / 3;
+  }
+}
+
 .benner_title {
   font-size: 1.3rem;
   padding: 0.5rem 1rem;
@@ -74,9 +81,4 @@
 }
 .carousel_nav_btn svg {
   color: #707070;
-}
-@media screen and (max-width: 767px) {
-  .banner {
-    aspect-ratio: 4 / 3;
-  }
 }
