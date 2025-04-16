@@ -102,6 +102,20 @@ function Carousel() {
             {streamers.map((streamer, index) => (
               <div className="banner" key={index}>
                 <div className="benner_title fb">{streamer.name}</div>
+                <div className="benner_link">
+                  <a href={streamer.youtube} target="_blank">
+                    <img src="/youtube.svg" alt="youtube" />
+                  </a>
+                  <a
+                    href="https://cafe.naver.com/steamindiegame"
+                    target="_blank"
+                  >
+                    <img src="/cafe.svg" alt="cafe" />
+                  </a>
+                  <a href={streamer.soop} target="_blank">
+                    <img src="/soop.svg" alt="soop" />
+                  </a>
+                </div>
               </div>
             ))}
           </div>

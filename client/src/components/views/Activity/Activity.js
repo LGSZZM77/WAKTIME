@@ -47,15 +47,17 @@ function Activity() {
               {/* map 쓰기 */}
               {streamers.map((streamer, index) => {
                 return (
-                  <div className="live_item" key={index}>
-                    <div className="live_profile">
-                      <div className="profile"></div>
-                      <p>{streamer.name}</p>
+                  <a href={streamer.soop} target="_blank">
+                    <div className="live_item" key={index}>
+                      <div className="live_profile">
+                        <div className="profile"></div>
+                        <p>{streamer.name}</p>
+                      </div>
+                      <div className="live_info">
+                        <div className="off_line">오프라인</div>
+                      </div>
                     </div>
-                    <div className="live_info">
-                      <div className="off_line">오프라인</div>
-                    </div>
-                  </div>
+                  </a>
                 );
               })}
             </div>

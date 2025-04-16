@@ -70,7 +70,5 @@
   height: 30px;
   background-color: var(--carousel_nav);
   border-radius: 0.5rem;
-}
-.carousel_nav_btn svg {
-  color: #707070;
+  color: var(--backgruond);
 }
