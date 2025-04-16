@@ -1,14 +1,19 @@
 header {
   background-color: var(--backgruond);
-  position: relative;
+  color: var(--header-text);
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 99;
+  width: 100%;
+  height: 80px;
 }
-header * {
+header svg {
   color: var(--header-text);
 }
 .header_wrap {
   max-width: 1280px;
   width: 100%;
-  height: 80px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -32,8 +37,14 @@ header * {
   display: flex;
   gap: 0.5rem;
 }
-.menu_lists li {
+.menu_lists a {
   padding: 1rem 2rem;
+  border-radius: 2rem;
+  color: var(--header-text);
+}
+.menu_lists a.current_menu {
+  background-color: #00bca1;
+  color: #b6edbd;
 }
 .header_right {
   display: flex;

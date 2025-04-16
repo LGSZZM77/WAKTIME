@@ -1,20 +1,29 @@
 import React from "react";
+import { Link, useLocation } from "react-router-dom";
 
 function MenuList() {
+  const location = useLocation();
+
+  const menu = [
+    { name: "메인", path: "/" },
+    { name: "이세계아이돌", path: "/isedol" },
+    { name: "팬아트", path: "/fanart" },
+    { name: "소개", path: "/intro" },
+  ];
+
   return (
     <ul className="menu_lists">
-      <li>
-        <a href="#">메인</a>
-      </li>
-      <li>
-        <a href="#">이세계아이돌</a>
-      </li>
-      <li>
-        <a href="#">팬아트</a>
-      </li>
-      <li>
-        <a href="#">소개</a>
-      </li>
+      {menu.map((menu, index) => {
+        return (
+          <Link
+            to={menu.path}
+            key={index}
+            className={location.pathname === menu.path ? "current_menu" : ""}
+          >
+            {menu.name}
+          </Link>
+        );
+      })}
     </ul>
   );
 }

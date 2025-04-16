@@ -4,14 +4,6 @@
   background-color: var(--backgruond);
   position: relative;
 }
-.carousel_container {
-  width: 100%;
-  height: 100%;
-  max-width: 1280px;
-  position: relative;
-  left: 50%;
-  transform: translateX(-50%);
-}
 .ov_hidden {
   overflow: hidden;
 }

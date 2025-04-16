@@ -1,17 +1,25 @@
 import "./App.css";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Header from "./components/views/Header/Header";
-import Carousel from "./components/views/Carousel/Carousel";
-import Activity from "./components/views/Activity/Activity";
+import Footer from "./components/views/Footer/Footer";
+
+import MainPage from "./pages/MainPage";
+import IsedolPage from "./pages/IsedolPage";
+import FanArtPage from "./pages/FanArtPage";
+import IntroPage from "./pages/IntroPage";
 
 function App() {
   return (
-    <div className="App">
-      <>
-        <Header />
-        <Carousel />
-        <Activity />
-      </>
-    </div>
+    <Router>
+      <Header />
+      <Routes>
+        <Route path="/" element={<MainPage />} />
+        <Route path="/isedol" element={<IsedolPage />} />
+        <Route path="/fanart" element={<FanArtPage />} />
+        <Route path="/intro" element={<IntroPage />} />
+      </Routes>
+      <Footer />
+    </Router>
   );
 }
 

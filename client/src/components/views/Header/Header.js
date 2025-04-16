@@ -19,7 +19,9 @@ function Header() {
     <header>
       <div className="header_wrap container">
         <div className="header_left">
-          <h1 className="logo fb">WAKTIME</h1>
+          <a href="/">
+            <h1 className="logo fb">WAKTIME</h1>
+          </a>
           <nav className="menu">
             <MenuList />
           </nav>
