@@ -1,7 +1,7 @@
 import React from "react";
 
 function FanArtPage() {
-  return <div>FanArtPage</div>;
+  return <div className="subpage">FanArtPage</div>;
 }
 
 export default FanArtPage;

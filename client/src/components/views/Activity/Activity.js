@@ -13,6 +13,14 @@ function Activity() {
   useEffect(() => {
     const fetchVideos = async () => {
       if (!YT_API_KEY) return console.error("API key missing");
+
+      // 로컬 스토리지에서 이미 데이터를 가져온다면 그것을 사용
+      const cachedVideos = localStorage.getItem("videos");
+      if (cachedVideos) {
+        setVideos(JSON.parse(cachedVideos));
+        return; // 로컬 스토리지에 데이터가 있으면 더 이상 API를 호출하지 않음
+      }
+
       try {
         const res = await fetch(
           `https://www.googleapis.com/youtube/v3/search?` +
@@ -29,11 +37,15 @@ function Activity() {
             const title = item.snippet.title.toLowerCase();
             return !title.includes("shorts");
           });
+
+        // 로컬 스토리지에 영상 데이터를 저장
+        localStorage.setItem("videos", JSON.stringify(items));
         setVideos(items);
       } catch (err) {
         console.error("영상 불러오기 실패:", err);
       }
     };
+
     fetchVideos();
   }, []);
 
@@ -71,10 +83,12 @@ function Activity() {
               {/* map 쓰기 */}
               {streamers.map((streamer, index) => {
                 return (
-                  <a href={streamer.soop} target="_blank">
-                    <div className="live_item" key={index}>
+                  <a href={streamer.soop} target="_blank" key={index}>
+                    <div className="live_item">
                       <div className="live_profile">
-                        <div className="profile"></div>
+                        <div className="profile">
+                          <img src={streamer.imageUrl} alt={streamer.name} />
+                        </div>
                         <p>{streamer.name}</p>
                       </div>
                       <div className="live_info">

@@ -20,11 +20,16 @@
   height: 2rem;
   background-color: white;
   border-radius: 50%;
+  overflow: hidden;
+}
+.profile img {
+  width: 100%;
+  height: 100%;
 }
 .upload_info {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
 }
 .upload_title {
   font-size: 0.9rem;
@@ -37,4 +42,14 @@
 }
 .upload_time {
   font-size: 0.8rem;
+}
+.video_item_link {
+  color: var(--text);
+  transition: color 0.2s ease;
+}
+.video_item_link:hover {
+  color: #00bca1;
+}
+.video_item_link:hover .video_item img {
+  border: 0.25rem solid #00bca1;
 }

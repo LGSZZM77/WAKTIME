@@ -7,46 +7,52 @@ const YT_API_KEY = process.env.REACT_APP_YT_API_KEY;
 function IsedolVideo({ channelId }) {
   const [videos, setVideos] = useState([]);
 
-  useEffect(() => {
-    if (!channelId || !YT_API_KEY) return;
+  const fetchUploadsPlaylistId = async () => {
+    const res = await fetch(
+      `https://www.googleapis.com/youtube/v3/channels?` +
+        `part=contentDetails&id=${channelId}&key=${YT_API_KEY}`
+    );
+    const data = await res.json();
+    return data.items?.[0]?.contentDetails?.relatedPlaylists?.uploads;
+  };
 
-    const fetchUploadsPlaylistId = async () => {
+  const fetchVideos = async (pageToken = "") => {
+    try {
+      const uploadsId = await fetchUploadsPlaylistId();
+      if (!uploadsId) return;
+
       const res = await fetch(
-        `https://www.googleapis.com/youtube/v3/channels?` +
-          `part=contentDetails&id=${channelId}&key=${YT_API_KEY}`
+        `https://www.googleapis.com/youtube/v3/playlistItems?` +
+          `part=snippet&playlistId=${uploadsId}&maxResults=30&key=${YT_API_KEY}&pageToken=${pageToken}`
       );
       const data = await res.json();
-      return data.items?.[0]?.contentDetails?.relatedPlaylists?.uploads;
-    };
+      const items = data.items
+        .filter((item) => item.snippet)
+        .map((item) => item.snippet);
 
-    const fetchVideos = async () => {
-      try {
-        const uploadsId = await fetchUploadsPlaylistId();
-        if (!uploadsId) return;
+      const filtered = items
+        .filter((snip) => !snip.title.toLowerCase().includes("shorts"))
+        .slice(0, 12); // 최대 12개
 
-        const res = await fetch(
-          `https://www.googleapis.com/youtube/v3/playlistItems?` +
-            `part=snippet&playlistId=${uploadsId}` +
-            `&maxResults=50&key=${YT_API_KEY}`
-        );
-        const data = await res.json();
+      // 비디오 데이터를 로컬 스토리지에 저장
+      localStorage.setItem("videos", JSON.stringify(filtered));
 
-        const items = data.items
-          .filter((item) => item.snippet)
-          .map((item) => item.snippet);
+      setVideos(filtered);
+    } catch (err) {
+      console.error("영상 불러오기 실패:", err);
+    }
+  };
 
-        const filtered = items
-          .filter((snip) => !snip.title.toLowerCase().includes("shorts"))
-          .slice(0, 12); // 최대 12개
-
-        setVideos(filtered);
-      } catch (err) {
-        console.error("영상 불러오기 실패:", err);
-        setVideos([]);
+  // 첫 로딩 시 비디오 로드 (로컬 스토리지에 저장된 데이터가 있으면 사용)
+  useEffect(() => {
+    if (localStorage.getItem("videos")) {
+      // 로컬 스토리지에서 비디오 데이터를 가져옴
+      setVideos(JSON.parse(localStorage.getItem("videos")));
+    } else {
+      if (channelId && YT_API_KEY) {
+        fetchVideos(); // 첫 번째 페이지 로드
       }
-    };
-
-    fetchVideos();
+    }
   }, [channelId]);
 
   return (
@@ -63,9 +69,10 @@ function IsedolVideo({ channelId }) {
           </div>
         </div>
       </div>
+      <div className="line"></div>
       <div>
         <div className="title">
-          <h1>최근 올라온 클립</h1>
+          <h1>클립</h1>
         </div>
         <div className="clip_main">zzz</div>
       </div>

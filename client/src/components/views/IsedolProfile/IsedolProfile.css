@@ -28,12 +28,33 @@
   border-radius: 50%;
   cursor: pointer;
   transition: all 0.3s ease;
-  background-color: red;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.circle.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 .circle:hover {
   transform: scale(1.1);
 }
+.circle img {
+  width: 100%;
+  height: 100%;
+}
 .circle.active {
   width: 8rem;
   height: 8rem;
+}
+@media screen and (max-width: 768px) {
+  .circle {
+    width: 3rem;
+    height: 3rem;
+  }
+  .circle.active {
+    width: 6rem;
+    height: 6rem;
+  }
 }
