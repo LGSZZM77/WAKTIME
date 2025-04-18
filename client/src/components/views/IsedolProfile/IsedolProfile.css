@@ -1,0 +1,39 @@
+.circle_container {
+  height: calc(100vh - 280px);
+  display: flex;
+  justify-content: center;
+}
+.circle_container.shifted {
+  height: 100%;
+  align-items: flex-start;
+}
+.circle_wrap {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  transition: margin 0.3s ease;
+}
+.circle_wrap.shifted {
+  position: relative;
+  top: 7rem;
+  margin-top: 1rem;
+  padding-bottom: 7rem;
+  gap: 0.5rem;
+}
+.circle {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: red;
+}
+.circle:hover {
+  transform: scale(1.1);
+}
+.circle.active {
+  width: 8rem;
+  height: 8rem;
+}

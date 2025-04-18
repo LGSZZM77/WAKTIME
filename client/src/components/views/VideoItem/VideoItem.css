@@ -1,0 +1,40 @@
+.video_item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 12.5rem;
+}
+.video_item > .thumbnail {
+  width: 12.5rem;
+  height: 112.5px;
+  background-color: white;
+  border-radius: 0.5rem;
+}
+.owner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.profile {
+  width: 2rem;
+  height: 2rem;
+  background-color: white;
+  border-radius: 50%;
+}
+.upload_info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.upload_title {
+  font-size: 0.9rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+}
+.upload_time {
+  font-size: 0.8rem;
+}

@@ -16,6 +16,7 @@
   --text: #000000;
   --text-reverse: #ffffff;
   --background-live: #f9fafb;
+  --background-subpage: #f3f4f6;
 }
 .dark {
   --header-text: #bbbbbb;
@@ -26,10 +27,15 @@
   --text: #ffffff;
   --text-reverse: #000000;
   --background-live: #1b1b1b;
+  --background-subpage: #323232;
 }
 body {
   font-family: "CookieRun Regular", sans-serif;
   padding-top: 80px;
+  background-color: var(--backgruond);
+  min-height: 100vh;
+  position: relative;
+  padding-bottom: 200px;
 }
 .fb {
   font-family: "CookieRun Bold";
@@ -42,4 +48,14 @@ body {
   position: relative;
   left: 50%;
   transform: translateX(-50%);
+}
+.title {
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+}
+.subpage {
+  background-color: var(--background-subpage);
+}
+.last_section {
+  padding-bottom: 6.5rem;
 }

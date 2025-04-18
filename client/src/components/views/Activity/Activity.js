@@ -1,40 +1,64 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ChevronRight } from "lucide-react";
-import { streamers } from "../../../data/streamers";
+import VideoItem from "../VideoItem/VideoItem";
 import "./Activity.css";
+import { streamers } from "../../../data/streamers";
+
+const YT_API_KEY = process.env.REACT_APP_YT_API_KEY;
+const WAKTAVERSE_ID = "UCzh4yY8rl38knH33XpNqXbQ";
 
 function Activity() {
+  const [videos, setVideos] = useState([]);
+
+  useEffect(() => {
+    const fetchVideos = async () => {
+      if (!YT_API_KEY) return console.error("API key missing");
+      try {
+        const res = await fetch(
+          `https://www.googleapis.com/youtube/v3/search?` +
+            `key=${YT_API_KEY}` +
+            `&channelId=${WAKTAVERSE_ID}` +
+            `&part=snippet,id` +
+            `&order=date` +
+            `&maxResults=20`
+        );
+        const data = await res.json();
+        const items = data.items
+          .filter((item) => item.id.kind === "youtube#video")
+          .filter((item) => {
+            const title = item.snippet.title.toLowerCase();
+            return !title.includes("shorts");
+          });
+        setVideos(items);
+      } catch (err) {
+        console.error("영상 불러오기 실패:", err);
+      }
+    };
+    fetchVideos();
+  }, []);
+
   return (
-    <div className="activity">
+    <div className="activity last_section">
       <div className="activity_container container">
         <div className="video">
-          <div className="video_title">
+          <div className="title">
             <h1>최근 올라온 영상</h1>
           </div>
           <div className="video_wrap">
-            {streamers.map((streamer, index) => {
-              return (
-                <div className="video_item" key={index}>
-                  <div className="thumbnail"></div>
-                  <div className="owner">
-                    <div className="profile"></div>
-                    <div className="upload_info">
-                      <p className="upload_title">{streamer.name}</p>
-                      <p className="upload_time">1시간 전</p>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            {videos.map((video, idx) => (
+              <VideoItem key={idx} video={video} />
+            ))}
           </div>
           <a
             className="video_link"
             href="https://www.youtube.com/@waktaverse"
             target="_blank"
+            rel="noopener noreferrer"
           >
             왁타버스 채널 바로가기 <ChevronRight />
           </a>
         </div>
+
         <div className="live">
           <div className="live_wrap">
             <div className="live_top">

@@ -2,6 +2,8 @@ footer {
   height: 12.5rem;
   width: 100%;
   background-color: var(--backgruond);
+  position: absolute;
+  bottom: 0;
 }
 .footer_wrap {
   height: 100%;

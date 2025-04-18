@@ -11,7 +11,7 @@ function Carousel() {
   useEffect(() => {
     setTimeout(() => {
       const existingClones = document.querySelectorAll(".banner.clone");
-      if (existingClones.length > 0) return; // 이미 클론이 있으면 실행 중단
+      if (existingClones.length > 0) return;
 
       const slides = document.querySelector(".banner_wrap");
       const slide = document.querySelectorAll(".banner");
@@ -34,10 +34,10 @@ function Carousel() {
 
     const intervalId = setInterval(() => {
       handleNext();
-    }, 3000); // 3초마다 자동 이동
+    }, 3000);
 
-    return () => clearInterval(intervalId); // 컴포넌트 언마운트 시 정리
-  }, [isInitialized, currentIdx]); // currentIdx 바뀔 때마다 재설정
+    return () => clearInterval(intervalId);
+  }, [isInitialized, currentIdx]);
 
   // 무한 반복 캐러셀 복사본 생성
   function makeClone(slides, slide, slideCount) {

@@ -1,6 +1,5 @@
 .activity {
   width: 100%;
-  height: 29rem;
   background-color: var(--background-deep);
 }
 .activity_container {
@@ -13,49 +12,14 @@
   height: 20rem;
   position: relative;
 }
-.video_title {
-  font-size: 1.5rem;
-}
 .video_wrap {
   display: flex;
   gap: 0.5rem;
   width: calc(200px * 4 + 0.5rem * 3);
-  margin-top: 2rem;
   overflow: scroll;
 }
 .video_wrap::-webkit-scrollbar {
   display: none;
-}
-.video_item {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-.video_item > .thumbnail {
-  width: 12.5rem;
-  height: 112.5px;
-  background-color: white;
-  border-radius: 0.5rem;
-}
-.owner {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-.profile {
-  width: 2rem;
-  height: 2rem;
-  background-color: white;
-  border-radius: 50%;
-}
-.upload_info {
-  line-height: 1rem;
-}
-.upload_title {
-  font-size: 0.9rem;
-}
-.upload_time {
-  font-size: 0.8rem;
 }
 
 .video_link {
