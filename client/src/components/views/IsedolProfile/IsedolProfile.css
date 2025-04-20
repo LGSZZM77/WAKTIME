@@ -25,13 +25,11 @@
 .circle {
   width: 4rem;
   height: 4rem;
-  border-radius: 50%;
   cursor: pointer;
   transition: all 0.3s ease;
-  overflow: hidden;
   opacity: 0;
   transform: translateY(20px);
-  transition: opacity 0.5s ease, transform 0.5s ease;
+  transition: all 0.5s ease;
 }
 .circle.visible {
   opacity: 1;
@@ -43,6 +41,7 @@
 .circle img {
   width: 100%;
   height: 100%;
+  border-radius: 50%;
 }
 .circle.active {
   width: 8rem;

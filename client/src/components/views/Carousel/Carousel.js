@@ -80,7 +80,7 @@ function Carousel() {
     }px)`;
     setCurrentIdx(num);
 
-    if (num == slideCount || num == -slideCount) {
+    if (num === slideCount || num === -slideCount) {
       setTimeout(() => {
         slides.classList.remove("animated");
         slides.style.transform = `translateX(${
@@ -103,16 +103,25 @@ function Carousel() {
               <div className="banner" key={index}>
                 <div className="benner_title fb">{streamer.name}</div>
                 <div className="benner_link">
-                  <a href={streamer.youtube} target="_blank">
+                  <a
+                    href={streamer.youtube}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     <img src="/youtube.svg" alt="youtube" />
                   </a>
                   <a
                     href="https://cafe.naver.com/steamindiegame"
                     target="_blank"
+                    rel="noopener noreferrer"
                   >
                     <img src="/cafe.svg" alt="cafe" />
                   </a>
-                  <a href={streamer.soop} target="_blank">
+                  <a
+                    href={streamer.soop}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     <img src="/soop.svg" alt="soop" />
                   </a>
                 </div>
@@ -122,10 +131,10 @@ function Carousel() {
         </div>
 
         <div className="carousel_nav_btn">
-          <button onClick={handlePrev}>
+          <button onClick={handlePrev} aria-label="이전 슬라이드">
             <ChevronLeft />
           </button>
-          <button onClick={handleNext}>
+          <button onClick={handleNext} aria-label="다음 슬라이드">
             <ChevronRight />
           </button>
         </div>

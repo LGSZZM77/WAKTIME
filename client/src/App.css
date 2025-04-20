@@ -52,6 +52,7 @@ body {
 .title {
   font-size: 1.5rem;
   margin-bottom: 2rem;
+  display: inline-block;
 }
 .subpage {
   background-color: var(--background-subpage);

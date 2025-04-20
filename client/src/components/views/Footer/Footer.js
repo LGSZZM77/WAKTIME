@@ -9,17 +9,32 @@ function Footer() {
       <div className="footer_wrap">
         <div className="footer_sns">
           <span>
-            <a href="https://github.com/LGSZZM77" target="_blank">
+            <a
+              href="https://github.com/LGSZZM77"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="깃허브로 이동"
+            >
               <Github />
             </a>
           </span>
           <span>
-            <a href="https://www.instagram.com/igyuseong2859/" target="_blank">
+            <a
+              href="https://www.instagram.com/igyuseong2859/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="인스타로 이동"
+            >
               <Instagram />
             </a>
           </span>
           <span>
-            <a href="https://www.youtube.com/@cogyusung" target="_blank">
+            <a
+              href="https://www.youtube.com/@cogyusung"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="유튜브로 이동"
+            >
               <Youtube />
             </a>
           </span>
@@ -27,6 +42,8 @@ function Footer() {
             <a
               href="https://www.notion.so/HOME-1496a2071d5d80bdbf67d96aa1257e43?pvs=4"
               target="_blank"
+              rel="noopener noreferrer"
+              aria-label="노션으로 이동"
             >
               <NotionIcon />
             </a>

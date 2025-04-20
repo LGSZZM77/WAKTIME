@@ -13,17 +13,16 @@ function MenuList() {
 
   return (
     <ul className="menu_lists">
-      {menu.map((menu, index) => {
-        return (
+      {menu.map((menu, index) => (
+        <li key={index}>
           <Link
             to={menu.path}
-            key={index}
             className={location.pathname === menu.path ? "current_menu" : ""}
           >
             {menu.name}
           </Link>
-        );
-      })}
+        </li>
+      ))}
     </ul>
   );
 }
