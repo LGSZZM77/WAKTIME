@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ChevronRight } from "lucide-react";
+import { Backpack, ChevronRight } from "lucide-react";
 import VideoItem from "../VideoItem/VideoItem";
 import "./Activity.css";
 import { streamers } from "../../../data/streamers";
@@ -14,8 +14,15 @@ function isoToSeconds(iso) {
   return m * 60 + s;
 }
 
+// 소플라이브 ID 추출 함수
+function extractSoopId(soopUrl) {
+  const parts = soopUrl.split("/");
+  return parts[parts.length - 1];
+}
+
 export default function Activity() {
   const [videos, setVideos] = useState([]);
+  const [liveMap, setLiveMap] = useState({});
 
   useEffect(() => {
     const cacheKey = "videos_activity";
@@ -68,6 +75,46 @@ export default function Activity() {
       .catch((err) => console.error("영상 불러오기 실패:", err));
   }, []);
 
+  useEffect(() => {
+    // 서버 API 경로 (기본값 또는 환경변수 사용)
+    const apiUrl = process.env.REACT_APP_API_URL;
+
+    fetch(`${apiUrl}/api/live-status`)
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`API 요청 실패: ${res.status}`);
+        }
+        return res.json();
+      })
+      .then((data) => {
+        console.log("받은 데이터:", data);
+        // 데이터 형식 검사
+        if (Array.isArray(data)) {
+          // 서버로부터 받은 ID를 기반으로 매핑
+          const idToLiveStatus = {};
+          data.forEach((item) => {
+            idToLiveStatus[item.id] = item.live;
+          });
+
+          // streamers 배열의 각 항목에 대해 live 상태 설정
+          const newLiveMap = {};
+          streamers.forEach((streamer) => {
+            const soopId = extractSoopId(streamer.soop);
+            newLiveMap[streamer.name] = idToLiveStatus[soopId] || false;
+          });
+
+          setLiveMap(newLiveMap);
+        } else {
+          console.error("예상하지 못한 데이터 형식:", data);
+        }
+      })
+      .catch((err) => {
+        console.error("뱅온 상태 로딩 실패:", err);
+        // 오류 발생 시 빈 객체로 설정
+        setLiveMap({});
+      });
+  }, []);
+
   return (
     <div className="activity last_section">
       <div className="activity_container container">
@@ -97,7 +144,7 @@ export default function Activity() {
           </a>
         </div>
 
-        {/* live 섹션 (원래 CSS 마크업 유지) */}
+        {/* live 섹션 */}
         <div className="live">
           <div className="live_wrap">
             <div className="live_top">
@@ -107,26 +154,37 @@ export default function Activity() {
               <h2>뱅온 정보</h2>
             </div>
             <div className="live_bottom">
-              {streamers.map((streamer, i) => (
-                <a
-                  href={streamer.soop}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  key={i}
-                >
-                  <div className="live_item">
-                    <div className="live_profile">
-                      <div className="profile">
-                        <img src={streamer.imageUrl} alt={streamer.name} />
+              {streamers.map((streamer, i) => {
+                const isLive = liveMap[streamer.name];
+                return (
+                  <a
+                    href={streamer.soop}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    key={i}
+                  >
+                    <div className="live_item">
+                      <div className="live_profile">
+                        <div className={`profile ${!isLive ? "filtered" : ""}`}>
+                          <img src={streamer.imageUrl} alt={streamer.name} />
+                        </div>
+                        <p>{streamer.name}</p>
                       </div>
-                      <p>{streamer.name}</p>
+                      <div className="live_info">
+                        {isLive ? (
+                          <div className="on_air">
+                            <span className="on_air_circle"></span>Live
+                          </div>
+                        ) : (
+                          <div className="off_line">
+                            <span className="off_line_circle"></span>오프라인
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <div className="live_info">
-                      <div className="off_line">오프라인</div>
-                    </div>
-                  </div>
-                </a>
-              ))}
+                  </a>
+                );
+              })}
             </div>
           </div>
         </div>

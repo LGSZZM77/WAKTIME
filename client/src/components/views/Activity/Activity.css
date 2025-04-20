@@ -72,15 +72,38 @@
   gap: 0.5rem;
   font-size: 0.9rem;
 }
+.profile.filtered img {
+  filter: grayscale(100%) brightness(1); /* 회색조 + 약간 어둡게 */
+  opacity: 0.6; /* 살짝 투명하게 */
+}
 .live_info {
   font-size: 0.8rem;
   margin-right: 0.25rem;
 }
-.on_line {
+.live_info > div {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.on_air {
   color: #fff;
+}
+.on_air_circle {
+  background-color: #00bca1;
+  display: block;
+  width: 0.25rem;
+  height: 0.25rem;
+  border-radius: 50%;
 }
 .off_line {
   color: #666666;
+}
+.off_line_circle {
+  background-color: #666666;
+  display: block;
+  width: 0.25rem;
+  height: 0.25rem;
+  border-radius: 50%;
 }
 .soop_icon {
   width: 2rem;
