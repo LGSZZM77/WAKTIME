@@ -8,24 +8,26 @@
   src: url("./fonts/CookieRunFont_OTF/CookieRun_Bold.otf");
 }
 :root {
-  --header-text: #6b7280;
   --backgruond: #f9fafb;
   --backgruond-reverse: #232323;
   --background-deep: #f3f4f6;
   --carousel_nav: rgba(0, 188, 161, 0.3);
   --text: #000000;
   --text-reverse: #ffffff;
+  --text-shallow: #6b7280;
+  --text-deep: #9ca3af;
   --background-live: #f9fafb;
   --background-subpage: #f3f4f6;
 }
 .dark {
-  --header-text: #bbbbbb;
   --backgruond: #232323;
   --backgruond-reverse: #f9fafb;
   --background-deep: #191919;
   --carousel_nav: #424242;
   --text: #ffffff;
   --text-reverse: #000000;
+  --text-shallow: #bbbbbb;
+  --text-deep: #aaaaaa;
   --background-live: #1b1b1b;
   --background-subpage: #323232;
 }

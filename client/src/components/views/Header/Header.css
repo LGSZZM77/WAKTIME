@@ -1,6 +1,6 @@
 header {
   background-color: var(--backgruond);
-  color: var(--header-text);
+  color: var(--text-shallow);
   position: fixed;
   top: 0;
   left: 0;
@@ -8,7 +8,7 @@ header {
   width: 100%;
 }
 header svg {
-  color: var(--header-text);
+  color: var(--text-shallow);
 }
 .header_wrap {
   max-width: 1280px;
@@ -40,7 +40,7 @@ header svg {
 .menu_lists a {
   padding: 0.5rem 1rem;
   border-radius: 1.5rem;
-  color: var(--header-text);
+  color: var(--text-shallow);
 }
 .menu_lists a.current_menu {
   background-color: #00bca1;
@@ -69,7 +69,7 @@ header svg {
   height: 60px;
   justify-content: center;
   align-items: center;
-  border-top: 1px solid var(--header-text);
+  border-top: 1px solid var(--text-shallow);
 }
 
 @media screen and (max-width: 767px) {

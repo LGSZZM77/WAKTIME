@@ -1,0 +1,58 @@
+/* Masonry 그리드 기본 클래스 */
+.my-masonry-grid {
+  display: flex;
+  margin-left: -1rem;
+  width: auto;
+}
+
+.my-masonry-grid_column {
+  padding-left: 1rem; /* gutter */
+  background-clip: padding-box;
+}
+
+/* 각 아이템 카드 */
+.art_item {
+  margin-bottom: 1rem; /* 카드 간 세로 간격 */
+  display: flex;
+  flex-direction: column;
+}
+
+.art_item img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.art_item-content {
+  padding: 12px;
+}
+
+.art_item-content h3 {
+  font-size: 1.1rem;
+  color: var(--text);
+}
+.art_item-content h3 > span {
+  color: #ff2f3b;
+}
+.art_item-meta {
+  font-size: 0.9rem;
+  color: var(--text-shallow);
+}
+.art_item-meta > div {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.art_item-meta_top {
+  padding-top: 0.5rem;
+  padding-bottom: 0.25rem;
+}
+.art_item-meta_bottom {
+  font-size: 0.8rem;
+  color: var(--text-deep);
+}
+.memberLevel {
+  display: inline-flex;
+  justify-content: center;
+  padding: 0.15rem 0.3rem;
+}
