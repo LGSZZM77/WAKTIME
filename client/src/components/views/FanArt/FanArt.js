@@ -32,10 +32,9 @@ function FanArt() {
       try {
         const res = await fetch(`${apiUrl}/api/fanArt`);
         const data = await res.json();
-        console.log("▲ 받아온 raw data:", data);
         setArtData(data);
       } catch (err) {
-        console.error(err);
+        console.error("팬아트 불러오기 실패:", err);
       } finally {
         setLoading(false);
       }
@@ -63,6 +62,7 @@ function FanArt() {
             >
               {art.thumbnail && (
                 <img
+                  crossOrigin="anonymous"
                   className="art_item-thumb"
                   src={`${apiUrl}/api/fanArt/image-proxy?url=${encodeURIComponent(
                     art.thumbnail
