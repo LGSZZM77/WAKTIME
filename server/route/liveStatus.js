@@ -4,6 +4,7 @@ import puppeteer from "puppeteer";
 
 async function getBrowser() {
   return puppeteer.launch({
+    executablePath: puppeteer.executablePath(),
     args: [
       "--no-sandbox",
       "--disable-setuid-sandbox",
