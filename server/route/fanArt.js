@@ -159,7 +159,6 @@ async function getFanArtData() {
   const browser = await puppeteer.launch({
     headless: "new",
     args: ["--no-sandbox"],
-    executablePath: puppeteer.executablePath(),
   });
   const page = await browser.newPage();
 

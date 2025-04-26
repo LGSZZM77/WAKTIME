@@ -87,7 +87,6 @@ async function checkAllLive() {
   const browser = await puppeteer.launch({
     headless: "new",
     args: ["--no-sandbox"],
-    executablePath: puppeteer.executablePath(),
   });
 
   const checks = streamers.map((s) => limit(() => checkLive(s, browser)));
