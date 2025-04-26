@@ -11,6 +11,7 @@ async function getBrowser() {
       "--disable-dev-shm-usage",
     ],
     headless: true,
+    protocolTimeout: 120000,
   });
 }
 
@@ -46,8 +47,7 @@ async function gotoWithRetry(page, url, options, retries = 2) {
   }
 }
 
-async function checkLive(streamer) {
-  const browser = await getBrowser();
+async function checkLive(browser, streamer) {
   const page = await browser.newPage();
   page.setDefaultNavigationTimeout(15000);
 
@@ -79,7 +79,6 @@ async function checkLive(streamer) {
       Boolean(document.querySelector(".onAir_box, .onair_box"))
     );
     await page.close();
-    await browser.close();
     return { ...streamer, live };
   } catch (err) {
     console.error(
@@ -87,15 +86,19 @@ async function checkLive(streamer) {
       err.message
     );
     await page.close();
-    await browser.close();
-    return { ...streamer, live: false };
+    return { ...streamer, live: null };
   }
 }
 
 async function checkAllLive() {
-  const checks = streamers.map((s) => limit(() => checkLive(s)));
-  const results = await Promise.all(checks);
-  return results;
+  const browser = await getBrowser();
+  try {
+    const checks = streamers.map((s) => limit(() => checkLive(browser, s)));
+    const results = await Promise.all(checks);
+    return results;
+  } finally {
+    await browser.close();
+  }
 }
 
 router.get("/", async (req, res) => {

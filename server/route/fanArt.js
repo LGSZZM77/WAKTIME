@@ -11,6 +11,7 @@ async function getBrowser() {
       "--disable-dev-shm-usage",
     ],
     headless: true,
+    protocolTimeout: 120000,
   });
 }
 
@@ -138,18 +139,28 @@ fanArtRouter.get("/thumbnail", async (req, res) => {
 async function getFanArtData() {
   const browser = await getBrowser();
   const page = await browser.newPage();
-  await page.setUserAgent(
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36"
-  );
+
   try {
+    await page.setUserAgent(
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36"
+    );
+
     const target =
       "https://cafe.naver.com/f-e/cafes/27842958/menus/551?viewType=I&page=1";
-    await page.goto(target, { waitUntil: "domcontentloaded", timeout: 60000 });
+
+    console.log(`🌐 팬아트 페이지 접속 시도 중: ${target}`);
+
+    await page.goto(target, {
+      waitUntil: "domcontentloaded", // networkidle 대신 domcontentloaded로 가볍게
+      timeout: 90000, // 90초까지 기다려줌
+    });
+
     const items = await scrapeAlbumItems(page);
+    console.log(`✅ 팬아트 ${items.length}개 수집 완료`);
     return items;
   } catch (err) {
-    console.error("팬아트 스크래핑 오류:", err.message);
-    return [];
+    console.error("❌ 팬아트 스크래핑 실패:", err.message);
+    return []; // 실패해도 서버가 죽지 않게 빈 배열 반환
   } finally {
     await browser.close();
   }
