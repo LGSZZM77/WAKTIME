@@ -152,7 +152,7 @@ async function getFanArtData() {
     console.log(`🌐 팬아트 페이지 접속 시도 중: ${target}`);
 
     await page.goto(target, {
-      waitUntil: "domcontentloaded",
+      waitUntil: "networkidle0",
       timeout: 120000,
     });
 

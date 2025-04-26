@@ -70,8 +70,8 @@ async function checkLive(browser, streamer) {
   const url = `https://ch.sooplive.co.kr/${streamer.id}`;
   try {
     await gotoWithRetry(page, url, {
-      waitUntil: "domcontentloaded",
-      timeout: 60000,
+      waitUntil: "networkidle0",
+      timeout: 12000,
     });
     await page
       .waitForSelector(".onAir_box, .onair_box", { timeout: 5000 })
