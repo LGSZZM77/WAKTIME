@@ -158,6 +158,7 @@ fanArtRouter.get("/thumbnail", async (req, res) => {
 async function getFanArtData() {
   const browser = await puppeteer.launch({
     headless: true,
+    executablePath: "/path/to/your/chrome",
     args: ["--no-sandbox"],
   });
   const page = await browser.newPage();
