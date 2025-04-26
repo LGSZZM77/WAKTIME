@@ -62,7 +62,7 @@ async function checkLive(streamer, browser) {
   try {
     await gotoWithRetry(page, url, {
       waitUntil: "domcontentloaded",
-      timeout: 10000,
+      timeout: 30000,
     });
     // 최소 요소 대기
     await page
@@ -86,7 +86,11 @@ async function checkLive(streamer, browser) {
 async function checkAllLive() {
   const browser = await puppeteer.launch({
     headless: "new",
-    args: ["--no-sandbox"],
+    args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage",
+    ],
   });
 
   const checks = streamers.map((s) => limit(() => checkLive(s, browser)));
