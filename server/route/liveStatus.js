@@ -12,6 +12,7 @@ async function getBrowser() {
     ],
     headless: true,
     protocolTimeout: 120000,
+    timeout: 120000,
   });
 }
 

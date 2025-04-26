@@ -12,6 +12,7 @@ async function getBrowser() {
     ],
     headless: true,
     protocolTimeout: 120000,
+    timeout: 120000,
   });
 }
 
@@ -151,8 +152,8 @@ async function getFanArtData() {
     console.log(`🌐 팬아트 페이지 접속 시도 중: ${target}`);
 
     await page.goto(target, {
-      waitUntil: "domcontentloaded", // networkidle 대신 domcontentloaded로 가볍게
-      timeout: 90000, // 90초까지 기다려줌
+      waitUntil: "domcontentloaded",
+      timeout: 120000,
     });
 
     const items = await scrapeAlbumItems(page);
