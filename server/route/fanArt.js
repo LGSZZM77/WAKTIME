@@ -1,5 +1,5 @@
 import express from "express";
-import puppeteer from "puppeteer-core";
+import puppeteer from "puppeteer";
 import sharp from "sharp"; // 이미지 처리를 위한 라이브러리 추가
 
 const fanArtRouter = express.Router();
@@ -158,7 +158,6 @@ fanArtRouter.get("/thumbnail", async (req, res) => {
 async function getFanArtData() {
   const browser = await puppeteer.launch({
     headless: true,
-    executablePath: "/usr/bin/chromium",
     args: [
       "--no-sandbox",
       "--disable-setuid-sandbox",

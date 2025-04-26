@@ -1,5 +1,5 @@
 import express from "express";
-import puppeteer from "puppeteer-core";
+import puppeteer from "puppeteer";
 import pLimit from "p-limit";
 
 const router = express.Router();
@@ -86,7 +86,6 @@ async function checkLive(streamer, browser) {
 async function checkAllLive() {
   const browser = await puppeteer.launch({
     headless: true,
-    executablePath: "/usr/bin/chromium",
     args: [
       "--no-sandbox",
       "--disable-setuid-sandbox",
