@@ -8,6 +8,10 @@ const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 
+app.get("/", (req, res) => {
+  res.send("Server is running!");
+});
+
 // 라이브 상태 API
 app.use("/api/live-status", liveRouter);
 
