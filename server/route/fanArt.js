@@ -1,6 +1,15 @@
 import express from "express";
-import puppeteer from "puppeteer";
-import sharp from "sharp"; // 이미지 처리를 위한 라이브러리 추가
+import sharp from "sharp";
+import puppeteer from "puppeteer-core";
+import chromium from "chrome-aws-lambda";
+
+async function getBrowser() {
+  return puppeteer.launch({
+    args: chromium.args,
+    executablePath: await chromium.executablePath,
+    headless: chromium.headless,
+  });
+}
 
 const fanArtRouter = express.Router();
 let cachedData = null;
@@ -19,46 +28,33 @@ fanArtRouter.get("/", async (req, res) => {
   }
 
   const data = await getFanArtData();
-
-  // 캐시 업데이트
   cachedData = data;
   lastFetchTime = currentTime;
 
-  // HTTP 캐시 헤더 설정
   res.setHeader("Cache-Control", "public, max-age=300");
   res.json(data);
 });
 
-// 이미지 프록시 엔드포인트 (개선됨)
 fanArtRouter.get("/image-proxy", async (req, res) => {
   const imageUrlParam = req.query.url;
   if (typeof imageUrlParam !== "string") {
     return res.status(400).send("이미지 URL이 필요합니다");
   }
-
-  // 이미지 최적화 관련 파라미터
-  const format = req.query.format || "auto"; // auto, webp, jpeg, png
+  const format = req.query.format || "auto";
   const width = req.query.width ? parseInt(req.query.width) : null;
   const height = req.query.height ? parseInt(req.query.height) : null;
-  const quality = req.query.quality ? parseInt(req.query.quality) : 80; // 기본 품질 80%
-
+  const quality = req.query.quality ? parseInt(req.query.quality) : 80;
   const cleanUrl = imageUrlParam.split("?")[0];
 
   try {
     const response = await fetch(cleanUrl);
-    if (!response.ok) {
+    if (!response.ok)
       return res
         .status(response.status)
         .send("이미지를 가져오는데 실패했습니다");
-    }
-
     const buffer = await response.arrayBuffer();
-    const userAgent = req.headers["user-agent"] || "";
-
-    // sharp를 사용해 이미지 처리 시작
     let image = sharp(Buffer.from(buffer));
 
-    // 크기 조정이 요청된 경우
     if (width || height) {
       image = image.resize({
         width: width || undefined,
@@ -68,20 +64,15 @@ fanArtRouter.get("/image-proxy", async (req, res) => {
       });
     }
 
-    // 포맷 변환 및 최적화
     let outputFormat = format;
+    const userAgent = req.headers["user-agent"] || "";
     if (format === "auto") {
-      // User-Agent를 사용해 WebP 지원 여부 확인
-      const supportsWebP =
-        userAgent.includes("Chrome") ||
-        userAgent.includes("Edge") ||
-        userAgent.includes("Opera") ||
-        (userAgent.includes("Firefox") && userAgent.includes("Mobile"));
-
+      const supportsWebP = ["Chrome", "Edge", "Opera"].some((b) =>
+        userAgent.includes(b)
+      );
       outputFormat = supportsWebP ? "webp" : "jpeg";
     }
 
-    // 포맷에 따른 적절한 설정으로 변환
     let outputBuffer;
     switch (outputFormat) {
       case "webp":
@@ -92,17 +83,12 @@ fanArtRouter.get("/image-proxy", async (req, res) => {
         outputBuffer = await image.png({ compressionLevel: 9 }).toBuffer();
         res.setHeader("Content-Type", "image/png");
         break;
-      case "avif":
-        outputBuffer = await image.avif({ quality }).toBuffer();
-        res.setHeader("Content-Type", "image/avif");
-        break;
       case "jpeg":
       default:
         outputBuffer = await image.jpeg({ quality, mozjpeg: true }).toBuffer();
         res.setHeader("Content-Type", "image/jpeg");
     }
 
-    // 캐시 헤더 설정 (1일)
     res.setHeader("Cache-Control", "public, max-age=86400");
     res.send(outputBuffer);
   } catch (error) {
@@ -111,41 +97,33 @@ fanArtRouter.get("/image-proxy", async (req, res) => {
   }
 });
 
-// 썸네일 생성 전용 엔드포인트 추가
 fanArtRouter.get("/thumbnail", async (req, res) => {
-  const imageUrlParam = req.query.url;
-  if (typeof imageUrlParam !== "string") {
+  const url = req.query.url;
+  if (typeof url !== "string")
     return res.status(400).send("이미지 URL이 필요합니다");
-  }
-
   const width = req.query.width ? parseInt(req.query.width) : 300;
   const height = req.query.height ? parseInt(req.query.height) : null;
   const quality = req.query.quality ? parseInt(req.query.quality) : 70;
-
-  const cleanUrl = imageUrlParam.split("?")[0];
+  const clean = url.split("?")[0];
 
   try {
-    const response = await fetch(cleanUrl);
-    if (!response.ok) {
+    const response = await fetch(clean);
+    if (!response.ok)
       return res
         .status(response.status)
         .send("이미지를 가져오는데 실패했습니다");
-    }
-
     const buffer = await response.arrayBuffer();
-
-    // 썸네일 생성 (기본적으로 WebP로 변환)
     const thumbnail = await sharp(Buffer.from(buffer))
       .resize({
         width,
         height: height || undefined,
         fit: "cover",
-        position: "entropy", // 중요 부분 자동 감지
+        position: "entropy",
       })
       .webp({ quality })
       .toBuffer();
 
-    res.setHeader("Cache-Control", "public, max-age=86400"); // 1일 캐시
+    res.setHeader("Cache-Control", "public, max-age=86400");
     res.setHeader("Content-Type", "image/webp");
     res.send(thumbnail);
   } catch (error) {
@@ -154,29 +132,16 @@ fanArtRouter.get("/thumbnail", async (req, res) => {
   }
 });
 
-// 팬아트 데이터를 가져오는 함수
 async function getFanArtData() {
-  const browser = await puppeteer.launch({
-    headless: true,
-    args: [
-      "--no-sandbox",
-      "--disable-setuid-sandbox",
-      "--disable-dev-shm-usage",
-    ],
-  });
+  const browser = await getBrowser();
   const page = await browser.newPage();
-
   await page.setUserAgent(
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +
-      "AppleWebKit/537.36 (KHTML, like Gecko) " +
-      "Chrome/113.0.0.0 Safari/537.36"
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36"
   );
-
   try {
-    const targetUrl =
+    const target =
       "https://cafe.naver.com/f-e/cafes/27842958/menus/551?viewType=I&page=1";
-    await page.goto(targetUrl, { waitUntil: "networkidle2" });
-
+    await page.goto(target, { waitUntil: "networkidle2" });
     const items = await scrapeAlbumItems(page);
     return items;
   } catch (err) {
@@ -187,91 +152,47 @@ async function getFanArtData() {
   }
 }
 
-const levelNames = {
-  아메바: 0,
-  진드기: 1,
-  닭둘기: 2,
-  왁무새: 3,
-  침팬치: 4,
-  느그자: 5,
-};
-
 async function scrapeAlbumItems(page) {
-  const nodes = await page.$$(".article-album-view .item"); // 모든 아이템 노드 선택
-
-  const formatNumber = (number) => {
-    if (number >= 10000) {
-      return (number / 10000).toFixed(1) + "만";
-    } else if (number >= 1000) {
-      return number.toLocaleString();
-    } else {
-      return number.toString();
-    }
+  const nodes = await page.$$(".article-album-view .item");
+  const levelNames = {
+    아메바: 0,
+    진드기: 1,
+    닭둘기: 2,
+    왁무새: 3,
+    침팬치: 4,
+    느그자: 5,
   };
-
   const items = [];
-
   for (const item of nodes) {
-    const link = await item.$("a.thumbLink");
-    const href = link ? await link.evaluate((el) => el.href) : null;
-
-    const srcsetValue = await item.$eval("picture.DefaultImage source", (el) =>
+    const href = await item.$eval("a.thumbLink", (el) => el.href);
+    const raw = await item.$eval("picture.DefaultImage source", (el) =>
       el.getAttribute("srcset")
     );
-    const rawUrl = srcsetValue ? srcsetValue.split(" ")[0] : null;
-    const thumbnail = rawUrl ? rawUrl.split("?")[0] : null;
-
-    const titleElement = await item.$(".tit_txt");
-    const title = titleElement
-      ? await titleElement.evaluate((el) => el.textContent.trim())
-      : null;
-
-    const commentElement = await item.$("a.comment");
-    let commentCount = 0;
-    if (commentElement) {
-      const commentText = await commentElement.evaluate((el) =>
-        el.textContent.trim()
-      );
-      const commentMatch = commentText.match(/\[(\d+)\]/);
-      if (commentMatch) {
-        commentCount = parseInt(commentMatch[1], 10);
-      }
-    }
-
-    const nicknameElement = await item.$(".nick_btn .nickname");
-    const author = nicknameElement
-      ? await nicknameElement.evaluate((el) => el.textContent.trim())
-      : null;
-
-    const levelIcon = await item.$(".LevelIcon_LevelIcon__zegm_");
-    const memberLevelText = levelIcon
-      ? await levelIcon.$eval(".blind", (el) => el.textContent.trim())
-      : null;
-
-    const levelName = memberLevelText
-      ? memberLevelText.replace("멤버등급 : ", "").trim()
-      : null;
-
-    const memberLevel =
-      levelNames[levelName] !== undefined ? levelNames[levelName] : "";
-
-    const dateElement = await item.$(".date");
-    const date = dateElement
-      ? await dateElement.evaluate((el) => el.textContent.trim())
-      : null;
-
-    let viewCountText = await item.$eval(".count", (el) =>
+    const thumbnail = raw.split(" ")[0].split("?")[0];
+    const title = await item.$eval(".tit_txt", (el) => el.textContent.trim());
+    const commentCount =
+      parseInt(
+        await item.$eval(
+          "a.comment",
+          (el) => el.textContent.match(/\[(\d+)\]/)[1]
+        ),
+        10
+      ) || 0;
+    const author = await item.$eval(".nick_btn .nickname", (el) =>
       el.textContent.trim()
     );
-
-    viewCountText = viewCountText.replace("조회 ", "").replace(/,/g, "");
-
-    if (viewCountText.includes("만")) {
-      viewCountText = viewCountText.replace("만", "") * 10000; // 예: '1만' -> 10000
-    }
-
-    const viewCount = parseInt(viewCountText, 10) || 0;
-
+    const memberLevelText = await item.$eval(
+      ".LevelIcon_LevelIcon__zegm_ .blind",
+      (el) => el.textContent.replace("멤버등급 : ", "")
+    );
+    const memberLevel = levelNames[memberLevelText] || 0;
+    const date = await item.$eval(".date", (el) => el.textContent.trim());
+    let viewCountText = await item.$eval(".count", (el) =>
+      el.textContent.replace(/[^0-9만]/g, "")
+    );
+    let viewCount = viewCountText.includes("만")
+      ? parseFloat(viewCountText) * 10000
+      : parseInt(viewCountText, 10) || 0;
     items.push({
       href,
       thumbnail,
@@ -280,10 +201,9 @@ async function scrapeAlbumItems(page) {
       author,
       memberLevel,
       date,
-      viewCount: formatNumber(viewCount),
+      viewCount,
     });
   }
-
   return items;
 }
 

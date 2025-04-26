@@ -1,6 +1,15 @@
 import express from "express";
-import puppeteer from "puppeteer";
 import pLimit from "p-limit";
+import puppeteer from "puppeteer-core";
+import chromium from "chrome-aws-lambda";
+
+async function getBrowser() {
+  return puppeteer.launch({
+    args: chromium.args,
+    executablePath: await chromium.executablePath,
+    headless: chromium.headless,
+  });
+}
 
 const router = express.Router();
 
@@ -14,13 +23,10 @@ const streamers = [
   { name: "비챤", id: "viichan6" },
 ];
 
-const CONCURRENCY = 2; // 동시에 열 페이지 수 제한
+const CONCURRENCY = 2;
 const limit = pLimit(CONCURRENCY);
-
-// delay 헬퍼
 const delay = (ms) => new Promise((r) => setTimeout(r, ms));
 
-// 재시도 로직이 포함된 goto
 async function gotoWithRetry(page, url, options, retries = 2) {
   try {
     return await page.goto(url, options);
@@ -37,12 +43,11 @@ async function gotoWithRetry(page, url, options, retries = 2) {
   }
 }
 
-async function checkLive(streamer, browser) {
+async function checkLive(streamer) {
+  const browser = await getBrowser();
   const page = await browser.newPage();
-  // 네비게이션 타임아웃 15초
   page.setDefaultNavigationTimeout(15000);
 
-  // 헤더 설정 & 리소스 절약
   await page.setUserAgent(
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +
       "AppleWebKit/537.36 (KHTML, like Gecko) " +
@@ -50,8 +55,8 @@ async function checkLive(streamer, browser) {
   );
   await page.setRequestInterception(true);
   page.on("request", (req) => {
-    const resource = req.resourceType();
-    if (["image", "stylesheet", "font"].includes(resource)) {
+    const type = req.resourceType();
+    if (["image", "stylesheet", "font"].includes(type)) {
       req.abort();
     } else {
       req.continue();
@@ -64,7 +69,6 @@ async function checkLive(streamer, browser) {
       waitUntil: "domcontentloaded",
       timeout: 30000,
     });
-    // 최소 요소 대기
     await page
       .waitForSelector(".onAir_box, .onair_box", { timeout: 5000 })
       .catch(() => {});
@@ -72,6 +76,7 @@ async function checkLive(streamer, browser) {
       Boolean(document.querySelector(".onAir_box, .onair_box"))
     );
     await page.close();
+    await browser.close();
     return { ...streamer, live };
   } catch (err) {
     console.error(
@@ -79,24 +84,14 @@ async function checkLive(streamer, browser) {
       err.message
     );
     await page.close();
+    await browser.close();
     return { ...streamer, live: false };
   }
 }
 
 async function checkAllLive() {
-  const browser = await puppeteer.launch({
-    headless: true,
-    args: [
-      "--no-sandbox",
-      "--disable-setuid-sandbox",
-      "--disable-dev-shm-usage",
-    ],
-  });
-
-  const checks = streamers.map((s) => limit(() => checkLive(s, browser)));
+  const checks = streamers.map((s) => limit(() => checkLive(s)));
   const results = await Promise.all(checks);
-
-  await browser.close();
   return results;
 }
 
