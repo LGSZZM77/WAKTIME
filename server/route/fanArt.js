@@ -9,17 +9,20 @@ async function getBrowser() {
       "--no-sandbox",
       "--disable-setuid-sandbox",
       "--disable-dev-shm-usage",
+      "--disable-gpu",
+      "--disable-extensions",
+      "--disable-accelerated-2d-canvas",
     ],
     headless: true,
-    protocolTimeout: 120000,
-    timeout: 120000,
+    protocolTimeout: 60000,
+    timeout: 60000,
   });
 }
 
 const fanArtRouter = express.Router();
 let cachedData = null;
 let lastFetchTime = null;
-const CACHE_DURATION = 30 * 60 * 1000; // 30분 캐시
+const CACHE_DURATION = 2 * 60 * 60 * 1000; // 2시간 캐시
 
 fanArtRouter.get("/", async (req, res) => {
   const currentTime = Date.now();
@@ -36,7 +39,7 @@ fanArtRouter.get("/", async (req, res) => {
   cachedData = data;
   lastFetchTime = currentTime;
 
-  res.setHeader("Cache-Control", "public, max-age=300");
+  res.setHeader("Cache-Control", "public, max-age=1800"); // 30분 캐시
   res.json(data);
 });
 
@@ -146,15 +149,32 @@ async function getFanArtData() {
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36"
     );
 
+    // 리소스 로딩 최적화
+    await page.setRequestInterception(true);
+    page.on("request", (req) => {
+      if (
+        req.resourceType() === "image" ||
+        req.resourceType() === "stylesheet" ||
+        req.resourceType() === "font"
+      ) {
+        req.abort();
+      } else {
+        req.continue();
+      }
+    });
+
     const target =
       "https://cafe.naver.com/f-e/cafes/27842958/menus/551?viewType=I&page=1";
 
     console.log(`🌐 팬아트 페이지 접속 시도 중: ${target}`);
 
     await page.goto(target, {
-      waitUntil: "networkidle0",
-      timeout: 120000,
+      waitUntil: "domcontentloaded", // 더 빠른 로드 조건 사용
+      timeout: 60000,
     });
+
+    // 필요한 선택자가 로드될 때까지만 기다림
+    await page.waitForSelector(".article-album-view .item", { timeout: 60000 });
 
     const items = await scrapeAlbumItems(page);
     console.log(`✅ 팬아트 ${items.length}개 수집 완료`);
@@ -163,7 +183,21 @@ async function getFanArtData() {
     console.error("❌ 팬아트 스크래핑 실패:", err.message);
     return []; // 실패해도 서버가 죽지 않게 빈 배열 반환
   } finally {
-    await browser.close();
+    // 메모리 누수 방지를 위해 반드시 페이지와 브라우저 닫기
+    if (page) {
+      try {
+        await page.close();
+      } catch (e) {
+        console.error("페이지 닫기 실패:", e);
+      }
+    }
+    if (browser) {
+      try {
+        await browser.close();
+      } catch (e) {
+        console.error("브라우저 닫기 실패:", e);
+      }
+    }
   }
 }
 
@@ -178,47 +212,81 @@ async function scrapeAlbumItems(page) {
     느그자: 5,
   };
   const items = [];
-  for (const item of nodes) {
-    const href = await item.$eval("a.thumbLink", (el) => el.href);
-    const raw = await item.$eval("picture.DefaultImage source", (el) =>
-      el.getAttribute("srcset")
-    );
-    const thumbnail = raw.split(" ")[0].split("?")[0];
-    const title = await item.$eval(".tit_txt", (el) => el.textContent.trim());
-    const commentCount =
-      parseInt(
-        await item.$eval(
-          "a.comment",
-          (el) => el.textContent.match(/\[(\d+)\]/)[1]
-        ),
-        10
-      ) || 0;
-    const author = await item.$eval(".nick_btn .nickname", (el) =>
-      el.textContent.trim()
-    );
-    const memberLevelText = await item.$eval(
-      ".LevelIcon_LevelIcon__zegm_ .blind",
-      (el) => el.textContent.replace("멤버등급 : ", "")
-    );
-    const memberLevel = levelNames[memberLevelText] || 0;
-    const date = await item.$eval(".date", (el) => el.textContent.trim());
-    let viewCountText = await item.$eval(".count", (el) =>
-      el.textContent.replace(/[^0-9만]/g, "")
-    );
-    let viewCount = viewCountText.includes("만")
-      ? parseFloat(viewCountText) * 10000
-      : parseInt(viewCountText, 10) || 0;
-    items.push({
-      href,
-      thumbnail,
-      title,
-      commentCount,
-      author,
-      memberLevel,
-      date,
-      viewCount,
-    });
+
+  try {
+    for (const item of nodes) {
+      try {
+        const href = await item.$eval("a.thumbLink", (el) => el.href);
+        const raw = await item.$eval("picture.DefaultImage source", (el) =>
+          el.getAttribute("srcset")
+        );
+        const thumbnail = raw.split(" ")[0].split("?")[0];
+        const title = await item.$eval(".tit_txt", (el) =>
+          el.textContent.trim()
+        );
+
+        let commentCount = 0;
+        try {
+          commentCount =
+            parseInt(
+              await item.$eval(
+                "a.comment",
+                (el) => el.textContent.match(/\[(\d+)\]/)[1]
+              ),
+              10
+            ) || 0;
+        } catch (e) {
+          // 댓글 수 가져오기 실패시 기본값 사용
+        }
+
+        const author = await item.$eval(".nick_btn .nickname", (el) =>
+          el.textContent.trim()
+        );
+
+        let memberLevel = 0;
+        try {
+          const memberLevelText = await item.$eval(
+            ".LevelIcon_LevelIcon__zegm_ .blind",
+            (el) => el.textContent.replace("멤버등급 : ", "")
+          );
+          memberLevel = levelNames[memberLevelText] || 0;
+        } catch (e) {
+          // 멤버 레벨 가져오기 실패시 기본값 사용
+        }
+
+        const date = await item.$eval(".date", (el) => el.textContent.trim());
+
+        let viewCount = 0;
+        try {
+          let viewCountText = await item.$eval(".count", (el) =>
+            el.textContent.replace(/[^0-9만]/g, "")
+          );
+          viewCount = viewCountText.includes("만")
+            ? parseFloat(viewCountText) * 10000
+            : parseInt(viewCountText, 10) || 0;
+        } catch (e) {
+          // 조회수 가져오기 실패시 기본값 사용
+        }
+
+        items.push({
+          href,
+          thumbnail,
+          title,
+          commentCount,
+          author,
+          memberLevel,
+          date,
+          viewCount,
+        });
+      } catch (error) {
+        console.error("아이템 개별 스크래핑 에러:", error.message);
+        // 개별 아이템 실패 시 건너뛰고 계속 진행
+      }
+    }
+  } catch (error) {
+    console.error("스크래핑 루프 에러:", error.message);
   }
+
   return items;
 }
 
