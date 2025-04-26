@@ -76,8 +76,8 @@ fanArtRouter.get("/image-proxy", async (req, res) => {
       });
     } else {
       image = image.resize({
-        width: 1200,
-        height: 1200,
+        width: 600,
+        height: 600,
         fit: "inside",
         withoutEnlargement: true,
       });
