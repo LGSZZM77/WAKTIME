@@ -157,8 +157,7 @@ fanArtRouter.get("/thumbnail", async (req, res) => {
 // 팬아트 데이터를 가져오는 함수
 async function getFanArtData() {
   const browser = await puppeteer.launch({
-    headless: true,
-    executablePath: "/path/to/your/chrome",
+    headless: "new",
     args: ["--no-sandbox"],
   });
   const page = await browser.newPage();

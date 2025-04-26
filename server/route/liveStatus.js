@@ -85,8 +85,7 @@ async function checkLive(streamer, browser) {
 
 async function checkAllLive() {
   const browser = await puppeteer.launch({
-    headless: true,
-    executablePath: "/path/to/your/chrome",
+    headless: "new",
     args: ["--no-sandbox", "--disable-dev-shm-usage"],
   });
 
