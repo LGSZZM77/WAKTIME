@@ -91,7 +91,6 @@ async function checkAllLive() {
       "--disable-setuid-sandbox",
       "--disable-dev-shm-usage",
     ],
-    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
   });
 
   const checks = streamers.map((s) => limit(() => checkLive(s, browser)));

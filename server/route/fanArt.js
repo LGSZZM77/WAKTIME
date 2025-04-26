@@ -163,7 +163,6 @@ async function getFanArtData() {
       "--disable-setuid-sandbox",
       "--disable-dev-shm-usage",
     ],
-    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
   });
   const page = await browser.newPage();
 
