@@ -40,6 +40,7 @@ fanArtRouter.get("/", async (req, res) => {
   res.json(data);
 });
 
+// fanArtRouter.get("/image-proxy") 부분 수정
 fanArtRouter.get("/image-proxy", async (req, res) => {
   const imageUrlParam = req.query.url;
   if (typeof imageUrlParam !== "string") {
@@ -52,18 +53,40 @@ fanArtRouter.get("/image-proxy", async (req, res) => {
   const cleanUrl = imageUrlParam.split("?")[0];
 
   try {
-    const response = await fetch(cleanUrl);
+    // 타임아웃 설정 추가
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5초 타임아웃
+
+    const response = await fetch(cleanUrl, {
+      signal: controller.signal,
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36",
+      },
+    });
+    clearTimeout(timeoutId);
+
     if (!response.ok)
       return res
         .status(response.status)
         .send("이미지를 가져오는데 실패했습니다");
+
     const buffer = await response.arrayBuffer();
     let image = sharp(Buffer.from(buffer));
 
+    // 이미지 처리 최적화: 먼저 크기를 줄여서 메모리 사용량 감소
     if (width || height) {
       image = image.resize({
         width: width || undefined,
         height: height || undefined,
+        fit: "inside",
+        withoutEnlargement: true,
+      });
+    } else {
+      // 너무 큰 이미지는 기본적으로 크기 제한
+      image = image.resize({
+        width: 1200,
+        height: 1200,
         fit: "inside",
         withoutEnlargement: true,
       });
@@ -98,10 +121,12 @@ fanArtRouter.get("/image-proxy", async (req, res) => {
     res.send(outputBuffer);
   } catch (error) {
     console.error("이미지 프록시 에러:", error);
+    // 에러 응답에 기본 이미지 제공
     res.status(500).send("이미지를 처리하는데 실패했습니다");
   }
 });
 
+// thumbnail 엔드포인트에도 동일한 변경 적용
 fanArtRouter.get("/thumbnail", async (req, res) => {
   const url = req.query.url;
   if (typeof url !== "string")
@@ -112,11 +137,24 @@ fanArtRouter.get("/thumbnail", async (req, res) => {
   const clean = url.split("?")[0];
 
   try {
-    const response = await fetch(clean);
+    // 타임아웃 설정 추가
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5초 타임아웃
+
+    const response = await fetch(clean, {
+      signal: controller.signal,
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36",
+      },
+    });
+    clearTimeout(timeoutId);
+
     if (!response.ok)
       return res
         .status(response.status)
         .send("이미지를 가져오는데 실패했습니다");
+
     const buffer = await response.arrayBuffer();
     const thumbnail = await sharp(Buffer.from(buffer))
       .resize({
@@ -137,21 +175,31 @@ fanArtRouter.get("/thumbnail", async (req, res) => {
   }
 });
 
+// getFanArtData 함수 수정 - 메모리 사용량 줄이기
 async function getFanArtData() {
   const browser = await getBrowser();
   const page = await browser.newPage();
 
   try {
+    // 메모리 사용량 최적화
     await page.setUserAgent(
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36"
     );
 
-    // 필요 없는 리소스 차단
+    // JavaScript 비활성화 (메모리 사용량 줄이기)
+    await page.setJavaScriptEnabled(false);
+
+    // 캐시 끄기
+    await page.setCacheEnabled(false);
+
+    // 이미지, 스타일시트, 폰트 모두 차단
     await page.setRequestInterception(true);
     page.on("request", (req) => {
       if (
         req.resourceType() === "stylesheet" ||
-        req.resourceType() === "font"
+        req.resourceType() === "font" ||
+        req.resourceType() === "image" ||
+        req.resourceType() === "media"
       ) {
         req.abort();
       } else {
@@ -165,23 +213,25 @@ async function getFanArtData() {
     console.log(`🌐 팬아트 페이지 접속 시도 중: ${target}`);
 
     await page.goto(target, {
-      waitUntil: "networkidle2",
-      timeout: 60000,
+      waitUntil: "domcontentloaded", // 더 빠른 로딩 옵션 사용
+      timeout: 30000, // 타임아웃 단축
     });
 
-    // 페이지 로드 후 잠시 대기
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    // 페이지 로드 후 대기
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     // 필요한 선택자가 로드될 때까지 기다림
     try {
       await page.waitForSelector(".article-album-view .item", {
-        timeout: 30000,
+        timeout: 10000,
       });
     } catch (e) {
       console.log("아이템 선택자를 찾을 수 없습니다:", e.message);
     }
 
-    const items = await scrapeAlbumItems(page);
+    // 메모리 사용량을 위해 최대 아이템 수 제한
+    const MAX_ITEMS = 15; // 최대 15개 아이템만 처리
+    const items = await scrapeAlbumItems(page, MAX_ITEMS);
     console.log(`✅ 팬아트 ${items.length}개 수집 완료`);
     return items;
   } catch (err) {
@@ -205,7 +255,8 @@ async function getFanArtData() {
   }
 }
 
-async function scrapeAlbumItems(page) {
+// 최대 아이템 수 제한을 위한 매개변수 추가
+async function scrapeAlbumItems(page, maxItems = Infinity) {
   try {
     const nodes = await page.$$(".article-album-view .item");
     console.log(`찾은 아이템 수: ${nodes.length}`);
@@ -221,8 +272,12 @@ async function scrapeAlbumItems(page) {
 
     const items = [];
 
-    for (const item of nodes) {
+    // 최대 아이템 수 제한
+    const nodesToProcess = nodes.slice(0, maxItems);
+
+    for (const item of nodesToProcess) {
       try {
+        // (나머지 코드는 동일)
         // href 가져오기
         let href = "#";
         try {
