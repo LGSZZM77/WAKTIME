@@ -85,7 +85,7 @@ async function checkLive(streamer, browser) {
 
 async function checkAllLive() {
   const browser = await puppeteer.launch({
-    headless: "true",
+    headless: true,
     args: [
       "--no-sandbox",
       "--disable-setuid-sandbox",
