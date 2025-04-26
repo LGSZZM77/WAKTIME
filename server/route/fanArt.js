@@ -50,7 +50,7 @@ fanArtRouter.get("/image-proxy", async (req, res) => {
 
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
     const response = await fetch(cleanUrl, {
       signal: controller.signal,
       headers: {
@@ -122,7 +122,7 @@ fanArtRouter.get("/thumbnail", async (req, res) => {
 
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
     const response = await fetch(clean, {
       signal: controller.signal,
       headers: {
