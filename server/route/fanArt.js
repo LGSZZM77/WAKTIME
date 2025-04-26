@@ -186,12 +186,6 @@ async function getFanArtData() {
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36"
     );
 
-    // JavaScript 비활성화 (메모리 사용량 줄이기)
-    await page.setJavaScriptEnabled(false);
-
-    // 캐시 끄기
-    await page.setCacheEnabled(false);
-
     // 이미지, 스타일시트, 폰트 모두 차단
     await page.setRequestInterception(true);
     page.on("request", (req) => {
@@ -216,6 +210,8 @@ async function getFanArtData() {
       waitUntil: "domcontentloaded", // 더 빠른 로딩 옵션 사용
       timeout: 30000, // 타임아웃 단축
     });
+
+    await page.waitForTimeout(2000);
 
     // 페이지 로드 후 대기
     await new Promise((resolve) => setTimeout(resolve, 1000));
