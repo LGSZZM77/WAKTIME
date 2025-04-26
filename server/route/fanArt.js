@@ -10,7 +10,7 @@ async function getBrowser() {
       "--disable-setuid-sandbox",
       "--disable-dev-shm-usage",
     ],
-    headless: "new",
+    headless: true,
   });
 }
 
@@ -144,7 +144,7 @@ async function getFanArtData() {
   try {
     const target =
       "https://cafe.naver.com/f-e/cafes/27842958/menus/551?viewType=I&page=1";
-    await page.goto(target, { waitUntil: "networkidle2" });
+    await page.goto(target, { waitUntil: "domcontentloaded", timeout: 60000 });
     const items = await scrapeAlbumItems(page);
     return items;
   } catch (err) {

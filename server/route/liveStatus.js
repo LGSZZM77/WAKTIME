@@ -10,7 +10,7 @@ async function getBrowser() {
       "--disable-setuid-sandbox",
       "--disable-dev-shm-usage",
     ],
-    headless: "new",
+    headless: true,
   });
 }
 
@@ -70,7 +70,7 @@ async function checkLive(streamer) {
   try {
     await gotoWithRetry(page, url, {
       waitUntil: "domcontentloaded",
-      timeout: 30000,
+      timeout: 60000,
     });
     await page
       .waitForSelector(".onAir_box, .onair_box", { timeout: 5000 })
