@@ -22,6 +22,10 @@
   display: none;
 }
 
+.videos_length {
+  color: #ff2f3b;
+}
+
 .video_link {
   position: absolute;
   right: 0;
@@ -86,7 +90,7 @@
   gap: 0.25rem;
 }
 .on_air {
-  color: #fff;
+  color: var(--text);
 }
 .on_air_circle {
   background-color: #00bca1;

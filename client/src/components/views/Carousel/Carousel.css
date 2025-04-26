@@ -16,6 +16,7 @@
   transition: 0.5s ease-out;
 }
 .banner {
+  /* 기존 스타일 유지 */
   background-color: #bbb;
   height: 16rem;
   aspect-ratio: 9 / 4;
@@ -23,7 +24,9 @@
   position: relative;
   background-position: center;
   background-size: cover;
+  transition: transform 0.3s ease;
 }
+
 @media screen and (max-width: 768px) {
   .banner {
     aspect-ratio: 4 / 3;

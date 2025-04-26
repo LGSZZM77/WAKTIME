@@ -100,7 +100,13 @@ function Carousel() {
         <div className="ov_hidden">
           <div className="banner_wrap">
             {streamers.map((streamer, index) => (
-              <div className="banner" key={index}>
+              <div
+                className="banner"
+                key={index}
+                style={{
+                  backgroundImage: `url(${streamer.banner})`,
+                }}
+              >
                 <div className="benner_title fb">{streamer.name}</div>
                 <div className="benner_link">
                   <a

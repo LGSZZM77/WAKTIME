@@ -11,7 +11,7 @@
   --backgruond: #f9fafb;
   --backgruond-reverse: #232323;
   --background-deep: #f3f4f6;
-  --carousel_nav: rgba(0, 188, 161, 0.3);
+  --carousel_nav: rgba(0, 188, 161, 0.7);
   --text: #000000;
   --text-reverse: #ffffff;
   --text-shallow: #6b7280;
@@ -61,4 +61,12 @@ body {
 }
 .last_section {
   padding-bottom: 6.5rem;
+}
+.loading,
+.no-data {
+  height: calc(100vh - 280px);
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

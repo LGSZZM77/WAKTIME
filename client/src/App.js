@@ -6,7 +6,6 @@ import Footer from "./components/views/Footer/Footer";
 import MainPage from "./pages/MainPage";
 import IsedolPage from "./pages/IsedolPage";
 import FanArtPage from "./pages/FanArtPage";
-import IntroPage from "./pages/IntroPage";
 
 function App() {
   return (
@@ -16,7 +15,6 @@ function App() {
         <Route path="/" element={<MainPage />} />
         <Route path="/isedol" element={<IsedolPage />} />
         <Route path="/fanart" element={<FanArtPage />} />
-        <Route path="/intro" element={<IntroPage />} />
       </Routes>
       <Footer />
     </Router>

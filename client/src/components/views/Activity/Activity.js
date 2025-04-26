@@ -121,7 +121,10 @@ export default function Activity() {
         {/* 비디오 섹션 */}
         <div className="video">
           <div className="title">
-            <h1>최근 올라온 영상</h1>
+            <h1>
+              최근 올라온 영상{" "}
+              <span className="videos_length">[{videos.length}]</span>
+            </h1>
           </div>
           <div className="video_wrap">
             {videos.map((v, idx) => (
@@ -158,7 +161,7 @@ export default function Activity() {
                 const isLive = liveMap[streamer.name];
                 return (
                   <a
-                    href={streamer.soop}
+                    href={isLive ? streamer.soopPlay : streamer.soop}
                     target="_blank"
                     rel="noopener noreferrer"
                     key={i}

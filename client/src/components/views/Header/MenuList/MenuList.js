@@ -8,7 +8,6 @@ function MenuList() {
     { name: "메인", path: "/" },
     { name: "이세계아이돌", path: "/isedol" },
     { name: "팬아트", path: "/fanart" },
-    { name: "소개", path: "/intro" },
   ];
 
   return (
