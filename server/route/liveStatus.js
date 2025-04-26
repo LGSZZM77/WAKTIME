@@ -14,7 +14,7 @@ const streamers = [
   { name: "비챤", id: "viichan6" },
 ];
 
-const CONCURRENCY = 5; // 동시에 열 페이지 수 제한
+const CONCURRENCY = 2; // 동시에 열 페이지 수 제한
 const limit = pLimit(CONCURRENCY);
 
 // delay 헬퍼
