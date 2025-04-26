@@ -170,12 +170,16 @@ async function getFanArtData() {
     });
 
     // 페이지 로드 후 잠시 대기
-    await page.waitForTimeout(2000);
+    await new Promise((resolve) => setTimeout(resolve, 2000));
 
     // 필요한 선택자가 로드될 때까지 기다림
-    await page
-      .waitForSelector(".article-album-view .item", { timeout: 30000 })
-      .catch(() => console.log("아이템 선택자를 찾을 수 없습니다."));
+    try {
+      await page.waitForSelector(".article-album-view .item", {
+        timeout: 30000,
+      });
+    } catch (e) {
+      console.log("아이템 선택자를 찾을 수 없습니다:", e.message);
+    }
 
     const items = await scrapeAlbumItems(page);
     console.log(`✅ 팬아트 ${items.length}개 수집 완료`);
@@ -184,114 +188,171 @@ async function getFanArtData() {
     console.error("❌ 팬아트 스크래핑 실패:", err.message);
     return []; // 실패해도 서버가 죽지 않게 빈 배열 반환
   } finally {
-    await browser.close();
+    if (page) {
+      try {
+        await page.close();
+      } catch (e) {
+        console.error("페이지 닫기 실패:", e);
+      }
+    }
+    if (browser) {
+      try {
+        await browser.close();
+      } catch (e) {
+        console.error("브라우저 닫기 실패:", e);
+      }
+    }
   }
 }
 
 async function scrapeAlbumItems(page) {
-  const nodes = await page.$$(".article-album-view .item");
-  const levelNames = {
-    아메바: 0,
-    진드기: 1,
-    닭둘기: 2,
-    왁무새: 3,
-    침팬치: 4,
-    느그자: 5,
-  };
+  try {
+    const nodes = await page.$$(".article-album-view .item");
+    console.log(`찾은 아이템 수: ${nodes.length}`);
 
-  const items = [];
+    const levelNames = {
+      아메바: 0,
+      진드기: 1,
+      닭둘기: 2,
+      왁무새: 3,
+      침팬치: 4,
+      느그자: 5,
+    };
 
-  for (const item of nodes) {
-    try {
-      // href와 썸네일 가져오기 - 에러 처리 추가
-      const href = await item
-        .$eval("a.thumbLink", (el) => el.href)
-        .catch(() => "#");
+    const items = [];
 
-      // 이미지 처리 부분을 try-catch로 감싸서 개선
-      let thumbnail = "";
+    for (const item of nodes) {
       try {
-        const raw = await item.$eval("picture.DefaultImage source", (el) =>
-          el.getAttribute("srcset")
-        );
-        thumbnail = raw.split(" ")[0].split("?")[0];
-      } catch (e) {
-        // 원래 코드에서의 다른 이미지 선택자도 시도
+        // href 가져오기
+        let href = "#";
         try {
-          thumbnail = await item.$eval(
-            "img.thumb, a.thumbLink img",
-            (el) => el.src || el.getAttribute("data-src") || ""
+          href = await page.evaluate(
+            (el) => el.querySelector("a.thumbLink").href,
+            item
           );
-        } catch (imgErr) {
-          thumbnail = "/default-thumbnail.jpg";
-          console.log("이미지를 찾을 수 없습니다.");
+        } catch (e) {
+          console.log("href 가져오기 실패");
         }
+
+        // 이미지 처리
+        let thumbnail = "";
+        try {
+          thumbnail = await page.evaluate((el) => {
+            const source = el.querySelector("picture.DefaultImage source");
+            if (source && source.getAttribute("srcset")) {
+              return source.getAttribute("srcset").split(" ")[0].split("?")[0];
+            }
+
+            // 대체 이미지 선택자 시도
+            const img = el.querySelector("img.thumb, a.thumbLink img");
+            if (img) {
+              return img.src || img.getAttribute("data-src") || "";
+            }
+
+            return "";
+          }, item);
+        } catch (e) {
+          thumbnail = "/default-thumbnail.jpg";
+        }
+
+        // 제목 가져오기
+        let title = "제목 없음";
+        try {
+          title = await page.evaluate((el) => {
+            const titleEl = el.querySelector(".tit_txt");
+            return titleEl ? titleEl.textContent.trim() : "제목 없음";
+          }, item);
+        } catch (e) {}
+
+        // 댓글 수 가져오기
+        let commentCount = 0;
+        try {
+          commentCount = await page.evaluate((el) => {
+            const commentEl = el.querySelector("a.comment");
+            if (commentEl) {
+              const match = commentEl.textContent.match(/\[(\d+)\]/);
+              return match ? parseInt(match[1], 10) : 0;
+            }
+            return 0;
+          }, item);
+        } catch (e) {}
+
+        // 작성자 가져오기
+        let author = "불명";
+        try {
+          author = await page.evaluate((el) => {
+            const authorEl = el.querySelector(".nick_btn .nickname");
+            return authorEl ? authorEl.textContent.trim() : "불명";
+          }, item);
+        } catch (e) {}
+
+        // 멤버 레벨 가져오기
+        let memberLevel = 0;
+        try {
+          memberLevel = await page.evaluate((el) => {
+            const levelEl = el.querySelector(
+              ".LevelIcon_LevelIcon__zegm_ .blind"
+            );
+            if (levelEl) {
+              const levelText = levelEl.textContent.replace("멤버등급 : ", "");
+              const levels = {
+                아메바: 0,
+                진드기: 1,
+                닭둘기: 2,
+                왁무새: 3,
+                침팬치: 4,
+                느그자: 5,
+              };
+              return levels[levelText] || 0;
+            }
+            return 0;
+          }, item);
+        } catch (e) {}
+
+        // 날짜 가져오기
+        let date = "불명";
+        try {
+          date = await page.evaluate((el) => {
+            const dateEl = el.querySelector(".date");
+            return dateEl ? dateEl.textContent.trim() : "불명";
+          }, item);
+        } catch (e) {}
+
+        // 조회수 가져오기
+        let viewCount = 0;
+        try {
+          viewCount = await page.evaluate((el) => {
+            const countEl = el.querySelector(".count");
+            if (countEl) {
+              const countText = countEl.textContent.replace(/[^0-9만]/g, "");
+              return countText.includes("만")
+                ? parseFloat(countText) * 10000
+                : parseInt(countText, 10) || 0;
+            }
+            return 0;
+          }, item);
+        } catch (e) {}
+
+        items.push({
+          href,
+          thumbnail,
+          title,
+          commentCount,
+          author,
+          memberLevel,
+          date,
+          viewCount,
+        });
+      } catch (error) {
+        console.error("아이템 처리 중 오류:", error.message);
       }
-
-      // 나머지 정보 처리 - 각각 try-catch로 안전하게 가져오기
-      let title = "제목 없음";
-      try {
-        title = await item.$eval(".tit_txt", (el) => el.textContent.trim());
-      } catch (e) {}
-
-      let commentCount = 0;
-      try {
-        commentCount =
-          parseInt(
-            await item.$eval("a.comment", (el) => {
-              const match = el.textContent.match(/\[(\d+)\]/);
-              return match ? match[1] : "0";
-            }),
-            10
-          ) || 0;
-      } catch (e) {}
-
-      let author = "불명";
-      try {
-        author = await item.$eval(".nick_btn .nickname", (el) =>
-          el.textContent.trim()
-        );
-      } catch (e) {}
-
-      let memberLevel = 0;
-      try {
-        const memberLevelText = await item.$eval(
-          ".LevelIcon_LevelIcon__zegm_ .blind",
-          (el) => el.textContent.replace("멤버등급 : ", "")
-        );
-        memberLevel = levelNames[memberLevelText] || 0;
-      } catch (e) {}
-
-      let date = "불명";
-      try {
-        date = await item.$eval(".date", (el) => el.textContent.trim());
-      } catch (e) {}
-
-      let viewCount = 0;
-      try {
-        let viewCountText = await item.$eval(".count", (el) =>
-          el.textContent.replace(/[^0-9만]/g, "")
-        );
-        viewCount = viewCountText.includes("만")
-          ? parseFloat(viewCountText) * 10000
-          : parseInt(viewCountText, 10) || 0;
-      } catch (e) {}
-
-      items.push({
-        href,
-        thumbnail,
-        title,
-        commentCount,
-        author,
-        memberLevel,
-        date,
-        viewCount,
-      });
-    } catch (error) {
-      console.error("아이템 처리 중 오류:", error.message);
     }
+
+    return items;
+  } catch (error) {
+    console.error("스크래핑 전체 오류:", error.message);
+    return [];
   }
-  return items;
 }
 
 export { fanArtRouter };
