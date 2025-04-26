@@ -5,6 +5,7 @@
   "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
   "main": "index.js",
   "scripts": {
+    "postinstall": "npx puppeteer browsers install chrome",
     "start": "node server/app.js",
     "server": "nodemon server/app.js",
     "client": "cd client && npm start",
