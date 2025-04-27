@@ -26,5 +26,5 @@ RUN npm install
 # 포트 설정
 EXPOSE 8080
 
-# 애플리케이션 시작 명령어
+# 애플리케이션 시작 명령어.
 CMD ["npm", "start"]
