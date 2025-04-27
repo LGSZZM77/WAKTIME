@@ -1,0 +1,39 @@
+steps:
+  # Node.js 환경을 설정하고 의존성을 설치
+  - name: "gcr.io/cloud-builders/nodejs"
+    entrypoint: "npm"
+    args: ["install"]
+
+  # 프로젝트 빌드
+  - name: "gcr.io/cloud-builders/nodejs"
+    entrypoint: "npm"
+    args: ["run", "build"]
+
+  # Docker 이미지를 빌드하고 Google Container Registry로 푸시
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      - "build"
+      - "-t"
+      - "gcr.io/$PROJECT_ID/waktime:$COMMIT_SHA"
+      - "."
+
+  # 이미지를 GCR에 푸시
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      - "push"
+      - "gcr.io/$PROJECT_ID/waktime:$COMMIT_SHA"
+
+images:
+  # 푸시할 이미지
+  - "gcr.io/$PROJECT_ID/waktime:$COMMIT_SHA"
+
+# 로그를 Cloud Logging으로만 설정
+options:
+  logging: CLOUD_LOGGING_ONLY
+  substitution_option: ALLOW_LOOSE
+
+substitutions:
+  # 커밋 SHA를 참조할 수 있게 설정
+  _COMMIT_SHA: ${COMMIT_SHA}
+
+timeout: 1200s # 빌드 시간 초과 설정
