@@ -1,31 +1,12 @@
 steps:
-  # Node.js 환경을 설정하고 의존성을 설치
-  - name: "gcr.io/cloud-builders/nodejs"
-    entrypoint: "npm"
+  - name: "gcr.io/cloud-builders/nodejs:20"
+    entrypoint: npm
     args: ["install"]
-
-  # 프로젝트 빌드
-  - name: "gcr.io/cloud-builders/nodejs"
-    entrypoint: "npm"
+  - name: "gcr.io/cloud-builders/nodejs:20"
+    entrypoint: npm
     args: ["run", "build"]
-
-  # Docker 이미지를 빌드하고 Google Container Registry로 푸시
-  - name: "gcr.io/cloud-builders/docker"
-    args:
-      - "build"
-      - "-t"
-      - "gcr.io/$PROJECT_ID/waktime:$COMMIT_SHA"
-      - "."
-
-  # 이미지를 GCR에 푸시
-  - name: "gcr.io/cloud-builders/docker"
-    args:
-      - "push"
-      - "gcr.io/$PROJECT_ID/waktime:$COMMIT_SHA"
-
 images:
-  # 푸시할 이미지
-  - "gcr.io/$PROJECT_ID/waktime:$COMMIT_SHA"
+  - "asia-northeast3-docker.pkg.dev/PROJECT_ID/REPO/IMAGE_NAME:$SHORT_SHA"
 
 # 로그를 Cloud Logging으로만 설정
 options:
