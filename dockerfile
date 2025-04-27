@@ -1,7 +1,7 @@
 # Node.js 이미지를 기반으로 빌드
 FROM node:20-slim
 
-# Puppeteer와 Chromium 실행에 필요한 라이브러리 설치.
+# 라이브러리 설치.
 RUN apt-get update && apt-get install -y \
     libnss3 \
     libatk-bridge2.0-0 \
@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y \
     libappindicator3-1 \
     libu2f-udev \
     wget \
-    chromium \
+    chromium-browser \
     && rm -rf /var/lib/apt/lists/*
 
 # 애플리케이션 코드 복사 및 설치
