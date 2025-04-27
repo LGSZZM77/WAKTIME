@@ -41,4 +41,5 @@ jobs:
             --region asia-northeast3 \
             --platform managed \
             --port 8080 \
+            --timeout 300s \
             --allow-unauthenticated
