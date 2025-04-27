@@ -1,0 +1,44 @@
+name: Deploy to Google Cloud Run  # 워크플로우 이름
+
+on:
+  push:  # 특정 이벤트가 발생할 때 실행
+    branches:
+      - main  # main 브랜치에 푸시될 때 실행
+
+jobs:
+  deploy:  # 'deploy'라는 작업 정의
+    runs-on: ubuntu-latest  # 어떤 환경에서 실행할지 (여기서는 Ubuntu 최신 버전)
+    
+    steps:  # 작업을 수행할 단계들
+      - name: Checkout code  # 코드 체크아웃 단계
+        uses: actions/checkout@v3  # GitHub 리포지토리의 코드를 가져옴
+
+      - name: Set up Node.js  # Node.js 환경 설정
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'  # 사용할 Node.js 버전
+
+      - name: Install dependencies  # 종속성 설치
+        run: npm install  # npm을 이용해 패키지를 설치
+
+      - name: Build project  # 프로젝트 빌드 (필요한 경우)
+        run: npm run build
+
+      - name: Set up Google Cloud CLI  # Google Cloud CLI 설정
+        uses: google-github-actions/setup-gcloud@v3
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}  # Google Cloud 프로젝트 ID
+          credentials_json: ${{ secrets.GCP_CREDENTIALS_JSON }}  # 인증 정보 (비밀로 설정된 서비스 계정 JSON)
+
+      - name: Build Docker image  # Docker 이미지 빌드
+        run: |
+          gcloud builds submit --tag gcr.io/${{ secrets.GCP_PROJECT_ID }}/waktime:${{ github.sha }}
+
+      - name: Deploy to Google Cloud Run  # Cloud Run에 배포
+        run: |
+          gcloud run deploy waktime \
+            --image gcr.io/${{ secrets.GCP_PROJECT_ID }}/waktime:${{ github.sha }} \
+            --region asia-northeast3 \
+            --platform managed \
+            --port 8080 \
+            --allow-unauthenticated
