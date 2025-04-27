@@ -13,7 +13,7 @@ RUN apt-get update \
      libu2f-udev wget chromium \
   && rm -rf /var/lib/apt/lists/*
 
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
 WORKDIR /app
 COPY package*.json ./
