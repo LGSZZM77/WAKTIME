@@ -16,9 +16,6 @@ RUN apt-get update && apt-get install -y \
     chromium \
     && rm -rf /var/lib/apt/lists/*
 
-# Puppeteer 실행 시 필요한 환경 변수 설정
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
-
 # 애플리케이션 코드 복사 및 설치
 WORKDIR /app
 COPY . .
