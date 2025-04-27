@@ -11,6 +11,9 @@ RUN npm install
 # 소스 코드 복사
 COPY . .
 
+# 환경 변수 설정
+ENV PORT=8080
+
 # 포트 노출
 EXPOSE 8080
 
