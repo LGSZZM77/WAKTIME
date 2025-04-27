@@ -4,7 +4,7 @@ import puppeteer from "puppeteer";
 
 async function getBrowser() {
   return puppeteer.launch({
-    executablePath: "/usr/bin/chromium-browser",
+    executablePath: "/usr/bin/chromium",
     args: [
       "--no-sandbox",
       "--disable-setuid-sandbox",
