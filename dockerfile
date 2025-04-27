@@ -47,5 +47,5 @@ ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome
 # 포트 노출
 EXPOSE 8080
 
-# 마지막 CMD 줄을 이것으로..
+# 마지막 CMD 줄을 이것으로...
 CMD ["sh", "-c", "ls -la && echo 'Starting server...' && node server/app.js"]
