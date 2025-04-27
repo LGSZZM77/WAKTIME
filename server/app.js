@@ -4,7 +4,7 @@ import liveRouter from "./route/liveStatus.js";
 import { fanArtRouter } from "./route/fanArt.js";
 
 const app = express();
-const PORT = 8080;
+const PORT = process.env.PORT || 8080;
 
 app.use(cors());
 
