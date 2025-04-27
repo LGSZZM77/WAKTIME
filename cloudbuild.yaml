@@ -1,0 +1,32 @@
+steps:
+  # 1) Docker로 컨테이너 이미지 빌드
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "build",
+        "-t",
+        "asia-east1-docker.pkg.dev/thematic-answer-458111-t6/my-repo/my-image:$SHORT_SHA",
+        ".",
+      ]
+
+  # 2) 빌드한 이미지를 레지스트리에 푸시
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "push",
+        "asia-east1-docker.pkg.dev/thematic-answer-458111-t6/my-repo/my-image:$SHORT_SHA",
+      ]
+
+# Cloud Build가 성공하면 이 이미지를 등록해 줍니다
+images:
+  - "asia-east1-docker.pkg.dev/thematic-answer-458111-t6/my-repo/my-image:$SHORT_SHA"
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+  substitution_option: ALLOW_LOOSE
+  defaultLogsBucketBehavior: REGIONAL_USER_OWNED_BUCKET
+
+substitutions:
+  _COMMIT_SHA: "${COMMIT_SHA}"
+
+timeout: 1200s
