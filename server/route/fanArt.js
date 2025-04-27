@@ -4,15 +4,15 @@ import puppeteer from "puppeteer";
 
 async function getBrowser() {
   return puppeteer.launch({
-    executablePath: "/usr/bin/chromium",
+    executablePath:
+      process.env.PUPPETEER_EXECUTABLE_PATH || "/usr/bin/chromium",
     args: [
       "--no-sandbox",
       "--disable-setuid-sandbox",
       "--disable-dev-shm-usage",
+      "--disable-gpu",
     ],
     headless: true,
-    protocolTimeout: 120000,
-    timeout: 120000,
   });
 }
 
