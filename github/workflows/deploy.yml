@@ -26,14 +26,11 @@ jobs:
       - name: Set up Google Cloud CLI
         uses: google-github-actions/setup-gcloud@v3
         with:
-          # 이 값이 'thematic-answer-458111-t6' 등 실제 프로젝트 ID와 일치해야 합니다.
           project_id: ${{ secrets.GCP_PROJECT_ID }}
           credentials_json: ${{ secrets.GCP_CREDENTIALS_JSON }}
 
       - name: Build and push Docker image
         run: |
-          # 로그를 Cloud Logging에만 저장하고, 
-          # GCS의 사용자 버킷(waktime-cloudbuild-logs)에 로그 파일을 남깁니다.
           gcloud builds submit \
             --tag gcr.io/${{ secrets.GCP_PROJECT_ID }}/waktime:${{ github.sha }} \
             --logging=CLOUD_LOGGING_ONLY \
