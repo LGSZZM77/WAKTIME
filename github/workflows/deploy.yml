@@ -31,8 +31,9 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          # Dockerfile이 프로젝트 루트에 있다고 가정
-          gcloud builds submit --tag gcr.io/${{ secrets.GCP_PROJECT_ID }}/waktime:${{ github.sha }}
+          gcloud builds submit \
+            --tag gcr.io/${{ secrets.GCP_PROJECT_ID }}/waktime:${{ github.sha }} \
+            --logging=CLOUD_LOGGING_ONLY
 
       - name: Deploy to Google Cloud Run
         run: |
