@@ -34,8 +34,7 @@ jobs:
           gcloud builds submit \
             --tag gcr.io/${{ secrets.GCP_PROJECT_ID }}/waktime:${{ github.sha }} \
             --logging=CLOUD_LOGGING_ONLY \
-            --gcs-log-dir=gs://waktime-cloudbuild-logs/logs/ \
-            --build-arg=build.service_account=cloud-build-sa@${{ secrets.GCP_PROJECT_ID }}.iam.gserviceaccount.com
+            --gcs-log-dir=gs://waktime-cloudbuild-logs/logs/
 
       - name: Deploy to Google Cloud Run
         run: |
