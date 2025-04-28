@@ -105,11 +105,6 @@ function IsedolVideo({ channelId }) {
           </div>
         </div>
       </div>
-      <div className="line" />
-      <div>
-        <h1 className="title">쇼츠</h1>
-        <div className="clip_main">준비 중입니다.</div>
-      </div>
     </div>
   );
 }

@@ -45,6 +45,7 @@
 .video_item_link {
   color: var(--text);
   transition: color 0.2s ease;
+  width: 12.5rem;
 }
 .video_item_link:hover {
   color: #00bca1;

@@ -3,19 +3,24 @@
   background-color: var(--background-deep);
 }
 .activity_container {
+  display: flex;
   padding-top: 2.5rem;
   color: var(--text);
-  display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  transition: 0.3s ease;
+  flex-wrap: wrap;
+  gap: 24px;
 }
+
 .video {
-  height: 20rem;
+  height: 16rem;
   position: relative;
+  overflow: hidden;
 }
 .video_wrap {
   display: flex;
   gap: 0.5rem;
-  width: calc(200px * 4 + 0.5rem * 3);
+  max-width: calc(200px * 4 + 0.5rem * 3);
   overflow: scroll;
 }
 .video_wrap::-webkit-scrollbar {
@@ -38,29 +43,39 @@
 }
 
 .live {
-  width: 25rem;
-  height: 20rem;
+  width: 100%;
+  max-width: 25rem;
+  aspect-ratio: 25 / 20; /* 25rem × 20rem 비율 유지 */
   background-color: var(--background-live);
   border-radius: 2rem;
   padding: 1rem 2rem;
+  user-select: none;
+  box-sizing: border-box;
 }
+
 .live_wrap {
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  height: 100%;
 }
+
 .live_top {
   display: flex;
   align-items: center;
   gap: 1.5rem;
 }
+
 .live_bottom {
   display: grid;
   gap: 0.5rem;
-  grid-template-columns: repeat(2, 1fr);
+  /* 한 칸 최소 8rem, 최대 1fr 로 자동 배치 */
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
 }
+
 .live_item {
-  width: 10rem;
+  /* 고정 width 대신 컨테이너에 꽉 차도록 */
+  width: 100%;
   height: 2.75rem;
   background-color: var(--background-deep);
   border-radius: 0.5rem;
@@ -69,32 +84,38 @@
   justify-content: space-between;
   padding: 0.25rem;
   color: var(--text);
+  box-sizing: border-box;
 }
+
 .live_profile {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   font-size: 0.9rem;
 }
+
 .profile.filtered img {
-  filter: grayscale(100%) brightness(1); /* 회색조 + 약간 어둡게 */
-  opacity: 0.6; /* 살짝 투명하게 */
+  filter: grayscale(100%) brightness(1);
+  opacity: 0.6;
 }
+
 .live_info {
   font-size: 0.8rem;
   margin-right: 0.25rem;
 }
+
 .live_info > div {
   display: flex;
   align-items: center;
   gap: 0.25rem;
 }
+
+/* 상태별 스타일은 그대로 */
 .on_air {
   color: var(--text);
 }
 .on_air_circle {
   background-color: #00bca1;
-  display: block;
   width: 0.25rem;
   height: 0.25rem;
   border-radius: 50%;
@@ -104,11 +125,11 @@
 }
 .off_line_circle {
   background-color: #666666;
-  display: block;
   width: 0.25rem;
   height: 0.25rem;
   border-radius: 50%;
 }
+
 .soop_icon {
   width: 2rem;
   height: 2rem;
@@ -119,4 +140,68 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* 데스크탑 미만 ~ 태블릿 */
+@media screen and (max-width: 1023px) {
+  .live {
+    padding: 0.75rem 1.5rem;
+  }
+  .live_wrap {
+    gap: 1.5rem;
+  }
+  .live_top {
+    gap: 1rem;
+  }
+  .live_bottom {
+    gap: 0.4rem;
+  }
+  .live_info {
+    font-size: 0.75rem;
+  }
+  .live_profile {
+    font-size: 0.85rem;
+  }
+}
+
+/* 태블릿 미만 ~ 휴대폰 */
+@media screen and (max-width: 767px) {
+  .live {
+    padding: 0.5rem 1rem;
+  }
+  .live_wrap {
+    gap: 1rem;
+  }
+  .live_top {
+    gap: 0.75rem;
+  }
+  .live_bottom {
+    gap: 0.3rem;
+  }
+  .live_info {
+    font-size: 0.7rem;
+  }
+  .live_profile {
+    font-size: 0.8rem;
+  }
+}
+
+/* 초소형 기기 (예: 480px 미만) */
+@media screen and (max-width: 479px) {
+  .live {
+    padding: 0.5rem;
+    border-radius: 1rem;
+  }
+  .live_top {
+    gap: 0.5rem;
+  }
+  .live_bottom {
+    gap: 0.25rem;
+  }
+  .live_info {
+    font-size: 0.65rem;
+  }
+  .live_profile {
+    font-size: 0.75rem;
+  }
 }

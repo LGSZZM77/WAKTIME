@@ -14,6 +14,8 @@
   align-items: center;
   position: relative;
   transition: margin 0.3s ease;
+  flex-wrap: wrap;
+  align-self: center;
 }
 .circle_wrap.shifted {
   position: relative;
@@ -46,14 +48,4 @@
 .circle.active {
   width: 8rem;
   height: 8rem;
-}
-@media screen and (max-width: 768px) {
-  .circle {
-    width: 3rem;
-    height: 3rem;
-  }
-  .circle.active {
-    width: 6rem;
-    height: 6rem;
-  }
 }

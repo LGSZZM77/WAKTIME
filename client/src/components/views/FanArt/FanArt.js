@@ -46,7 +46,7 @@ function FanArt() {
     return <div className="no-data">팬아트 불러오기를 실패했습니다.</div>;
 
   return (
-    <div className="container">
+    <div className="fanart_container container">
       <Masonry
         breakpointCols={BREAKPOINT_COLS}
         className="my-masonry-grid"
